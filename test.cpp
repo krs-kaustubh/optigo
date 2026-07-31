@@ -2,6 +2,6 @@
 
 int main()
 {
-    std::cout << "Test File to Start Repo" << std::endl;
+    std::cout << "Test File to Start Repo" << "\n";
     return 0;
 }
