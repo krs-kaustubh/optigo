@@ -50,7 +50,11 @@ JSON response — path / edges / totals
 | Backend entry | `backend/app/main.py` |
 | Graph/routing logic | `backend/app/graph.py` |
 | Backend deps (root copy — **has** networkx) | `requirements.txt` |
+<<<<<<< HEAD
 | Backend deps (backend copy — **missing** networkx ⚠️) | `backend/requirements.txt` |
+=======
+| Backend deps (backend copy — **missing** networkx | `backend/requirements.txt` |
+>>>>>>> bc2f50c2435c54a5a3efb59b39e78bb2004b9b4c
 | Frontend entry | `frontend/app/page.tsx` (default scaffold) |
 | Frontend layout | `frontend/app/layout.tsx` (default scaffold) |
 | Frontend manifest | `frontend/package.json` |
@@ -209,4 +213,8 @@ Nothing set up yet.
 - FastAPI docs: https://fastapi.tiangolo.com/
 - NetworkX docs: https://networkx.org/
 - Supabase docs: https://supabase.com/docs
+<<<<<<< HEAD
 - Next.js docs: https://nextjs.org/docs
+=======
+- Next.js docs: https://nextjs.org/docs
+>>>>>>> bc2f50c2435c54a5a3efb59b39e78bb2004b9b4c
