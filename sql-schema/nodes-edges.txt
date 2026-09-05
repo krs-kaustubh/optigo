@@ -1,0 +1,21 @@
+-- 1. Extension + tables
+
+create extension if not exists postgis;
+
+create table nodes (
+  id serial primary key,
+  name text not null,
+  lat double precision not null,
+  lng double precision not null,
+  type text not null
+);
+
+create table edges (
+  id serial primary key,
+  from_node int references nodes(id),
+  to_node int references nodes(id),
+  mode text not null,
+  distance double precision,
+  time double precision,
+  cost double precision
+);

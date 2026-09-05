@@ -1,0 +1,33 @@
+-- 3. Edges — main corridor, both Uran feeders, metro line
+
+-- Main Harbour corridor (Vashi → Panvel), Nerul inserted between Juinagar and Seawoods
+insert into edges (from_node, to_node, mode, distance, time, cost) values
+((select id from nodes where name='Vashi'),           (select id from nodes where name='Sanpada'),         'train', 1.5, 3, 5),
+((select id from nodes where name='Sanpada'),          (select id from nodes where name='Juinagar'),        'train', 1.3, 3, 5),
+((select id from nodes where name='Juinagar'),         (select id from nodes where name='Nerul'),           'train', 1.2, 3, 5),
+((select id from nodes where name='Nerul'),            (select id from nodes where name='Seawoods-Darave'), 'train', 1.3, 3, 5),
+((select id from nodes where name='Seawoods-Darave'),  (select id from nodes where name='Belapur CBD'),     'train', 2.2, 4, 5),
+((select id from nodes where name='Belapur CBD'),      (select id from nodes where name='Kharghar'),        'train', 3.4, 5, 5),
+((select id from nodes where name='Kharghar'),         (select id from nodes where name='Mansarovar'),      'train', 2.6, 4, 5),
+((select id from nodes where name='Mansarovar'),       (select id from nodes where name='Khandeshwar'),     'train', 1.7, 4, 5),
+((select id from nodes where name='Khandeshwar'),      (select id from nodes where name='Panvel'),          'train', 3.1, 5, 5);
+
+-- Uran-Ulwe branch — two feeders converging at Sagar Sangam, then onward (cutoff at Kharkopar)
+insert into edges (from_node, to_node, mode, distance, time, cost) values
+((select id from nodes where name='Nerul'),          (select id from nodes where name='Sagar Sangam'),  'train', 1.7, 3, 5),
+((select id from nodes where name='Belapur CBD'),    (select id from nodes where name='Sagar Sangam'),  'train', 1.7, 3, 5),
+((select id from nodes where name='Sagar Sangam'),   (select id from nodes where name='Targhar'),       'train', 1.5, 3, 5),
+((select id from nodes where name='Targhar'),        (select id from nodes where name='Bamandongri'),   'train', 1.8, 3, 5),
+((select id from nodes where name='Bamandongri'),    (select id from nodes where name='Kharkopar'),     'train', 2.2, 4, 5);
+
+-- Metro Line 1 (Belapur → Pendhar), 9 hops
+insert into edges (from_node, to_node, mode, distance, time, cost) values
+((select id from nodes where name='Belapur CBD'),      (select id from nodes where name='Belpada'),         'metro', 0.8, 3, 4),
+((select id from nodes where name='Belpada'),           (select id from nodes where name='Utsav Chowk'),     'metro', 0.6, 3, 4),
+((select id from nodes where name='Utsav Chowk'),       (select id from nodes where name='Kendriya Vihar'),  'metro', 0.7, 3, 4),
+((select id from nodes where name='Kendriya Vihar'),    (select id from nodes where name='Kharghar Village'),'metro', 1.1, 3, 4),
+((select id from nodes where name='Kharghar Village'),  (select id from nodes where name='Central Park'),    'metro', 1.2, 3, 4),
+((select id from nodes where name='Central Park'),      (select id from nodes where name='Pethpada'),        'metro', 1.3, 3, 4),
+((select id from nodes where name='Pethpada'),          (select id from nodes where name='Amandoot'),        'metro', 1.0, 3, 4),
+((select id from nodes where name='Amandoot'),          (select id from nodes where name='Pethali-Taloja'),  'metro', 0.9, 3, 4),
+((select id from nodes where name='Pethali-Taloja'),    (select id from nodes where name='Pendhar'),         'metro', 0.9, 3, 4);

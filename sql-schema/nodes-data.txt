@@ -1,0 +1,26 @@
+-- 2. Nodes — 22 stations (added Nerul, Sagar Sangam)
+
+insert into nodes (name, lat, lng, type) values
+('Vashi', 19.0632517, 72.9988553, 'rail'),
+('Sanpada', 19.0659637, 73.0094849, 'rail'),
+('Juinagar', 19.0562946, 73.0178235, 'rail'),
+('Nerul', 19.0333801, 73.0183566, 'rail_uran_origin'),
+('Seawoods-Darave', 19.0219794, 73.0193133, 'rail'),
+('Belapur CBD', 19.0188208, 73.0388390, 'rail_metro_uran_interchange'),
+('Sagar Sangam', 19.0106630, 73.0247210, 'rail_junction'),
+('Kharghar', 19.0263639, 73.0594488, 'rail'),
+('Mansarovar', 19.0165576, 73.0806949, 'rail'),
+('Khandeshwar', 19.0073656, 73.0952632, 'rail'),
+('Panvel', 18.9911172, 73.1206460, 'rail'),
+('Targhar', 18.9918840, 73.0370475, 'rail'),
+('Bamandongri', 18.9751506, 73.0243313, 'rail'),
+('Kharkopar', 18.9599051, 73.0141460, 'rail'),
+('Belpada', 19.0254324, 73.0552703, 'metro'),
+('Utsav Chowk', 19.0327270, 73.0590980, 'metro'),
+('Kendriya Vihar', 19.0376857, 73.0641924, 'metro'),
+('Kharghar Village', 19.0433150, 73.0744660, 'metro'),
+('Central Park', 19.0536592, 73.0760829, 'metro'),
+('Pethpada', 19.0640100, 73.0774620, 'metro'),
+('Amandoot', 19.0737820, 73.0818660, 'metro'),
+('Pethali-Taloja', 19.0746640, 73.0907640, 'metro'),
+('Pendhar', 19.0719003, 73.0981910, 'metro');
