@@ -1,0 +1,7 @@
+create or replace function get_nodes_with_coords()
+returns table(id int, name text, lat double precision, lng double precision, type text)
+language sql
+as $$
+  select id, name, ST_Y(location) as lat, ST_X(location) as lng, type
+  from nodes;
+$$;
