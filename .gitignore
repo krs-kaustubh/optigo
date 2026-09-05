@@ -1,2 +1,5 @@
-node_modules/\n.env\n.next/\ndist/
 graphify-out/
+node_modules/
+.env
+.next/
+dist/
