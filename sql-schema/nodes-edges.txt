@@ -1,26 +1,4 @@
--- 1. Extension + tables
-
-create extension if not exists postgis;
-
-create table nodes (
-  id serial primary key,
-  name text not null,
-  lat double precision not null,
-  lng double precision not null,
-  type text not null
-);
-
-create table edges (
-  id serial primary key,
-  from_node int references nodes(id),
-  to_node int references nodes(id),
-  mode text not null,
-  distance double precision,
-  time double precision,
-  cost double precision
-);
-
-v2 khushhi help
+-- 1. Extension + tables (with mode CHECK fixed to include 'metro')
 
 CREATE EXTENSION IF NOT EXISTS postgis;
 
@@ -33,21 +11,15 @@ CREATE TABLE nodes (
 
 CREATE TABLE edges (
     id SERIAL PRIMARY KEY,
-
     from_node INT NOT NULL REFERENCES nodes(id),
     to_node INT NOT NULL REFERENCES nodes(id),
-
     mode TEXT NOT NULL
-        CHECK (mode IN ('walking', 'bike', 'car', 'bus', 'train')),
-
+        CHECK (mode IN ('walking', 'bike', 'car', 'bus', 'train', 'metro')),
     distance DOUBLE PRECISION NOT NULL
         CHECK (distance >= 0),
-
     time DOUBLE PRECISION NOT NULL
         CHECK (time >= 0),
-
     cost DOUBLE PRECISION NOT NULL DEFAULT 0
         CHECK (cost >= 0),
-
     road_name TEXT
 );
