@@ -19,3 +19,35 @@ create table edges (
   time double precision,
   cost double precision
 );
+
+v2 khushhi help
+
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE TABLE nodes (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    location GEOMETRY(Point, 4326) NOT NULL,
+    type TEXT NOT NULL
+);
+
+CREATE TABLE edges (
+    id SERIAL PRIMARY KEY,
+
+    from_node INT NOT NULL REFERENCES nodes(id),
+    to_node INT NOT NULL REFERENCES nodes(id),
+
+    mode TEXT NOT NULL
+        CHECK (mode IN ('walking', 'bike', 'car', 'bus', 'train')),
+
+    distance DOUBLE PRECISION NOT NULL
+        CHECK (distance >= 0),
+
+    time DOUBLE PRECISION NOT NULL
+        CHECK (time >= 0),
+
+    cost DOUBLE PRECISION NOT NULL DEFAULT 0
+        CHECK (cost >= 0),
+
+    road_name TEXT
+);
