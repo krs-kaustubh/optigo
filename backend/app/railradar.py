@@ -5,82 +5,150 @@ from dotenv import load_dotenv
 load_dotenv()
 
 RAILRADAR_BASE = "https://api.railradar.in/v1"
-RAILRADAR_KEY = os.environ["RAILRADAR_API_KEY"]  # add to .env
+RAILRADAR_KEY = os.environ.get("RAILRADAR_API_KEY", "")
 
-
-def get_local_trains(city: str = "Mumbai"):
-    """Suburban local trains for a metro city (Mumbai/Kolkata/Chennai/Hyderabad)."""
-    resp = requests.get(
-        f"{RAILRADAR_BASE}/lookup/trains/local",
-        params={"city": city},
-        headers={"Authorization": f"Bearer {RAILRADAR_KEY}"},
-        timeout=10,
-    )
-    resp.raise_for_status()
-    return resp.json()
-
-
-def get_train_live(train_number):
-    """Live status for a single train: status + delayMinutes + current halt."""
-    resp = requests.get(
-        f"{RAILRADAR_BASE}/trains/{train_number}/live",
-        headers={"Authorization": f"Bearer {RAILRADAR_KEY}"},
-        timeout=10,
-    )
-    resp.raise_for_status()
-    return resp.json()
+# Station code mapping for Harbour & Uran lines
+STATION_CODES = {
+    "vashi": "VSH",
+    "sanpada": "SNCR",
+    "juinagar": "JNJ",
+    "nerul": "NEU",
+    "seawoods-darave": "SWDV",
+    "seawoodsdarave": "SWDV",
+    "seawoods darave": "SWDV",
+    "belapur cbd": "BEPR",
+    "belapur": "BEPR",
+    "sagarsangam": "SGSG",
+    "sagar sangam": "SGSG",
+    "kharghar": "KHAG",
+    "mansarovar": "MANR",
+    "khandeshwar": "KNDS",
+    "panvel": "PNVL",
+    "targhar": "TRGR",
+    "bamandongri": "BMDR",
+    "kharkopar": "KARP",
+}
 
 
 def _normalize(s: str) -> str:
-    return "".join(ch.lower() for ch in s if ch.isalnum())
+    return "".join(ch.lower() for ch in str(s) if ch.isalnum())
 
 
-def find_relevant_trains(station_names, all_trains, limit=3):
-    """Match local-train route names against path station names via
-    normalized (alnum-only) substring match. `all_trains` is the raw
-    get_local_trains() response: {"success", "data": {train_number: route_name}, "meta"}.
-    Returns up to `limit` matches as (train_number, route_name) tuples."""
-    normalized_stations = [_normalize(s) for s in station_names]
-    trains_data = all_trains.get("data", {}) if isinstance(all_trains, dict) else {}
-    matches = []
-    for train_number, route_name in trains_data.items():
-        norm_route = _normalize(route_name)
-        if any(st in norm_route for st in normalized_stations):
-            matches.append((train_number, route_name))
-        if len(matches) >= limit:
+def get_station_live_board(station_code: str, hours: int = 2):
+    """Fetch live departure/arrival board for a station from RailRadar."""
+    resp = requests.get(
+        f"{RAILRADAR_BASE}/stations/{station_code}/live",
+        params={"hours": hours},
+        headers={"Authorization": f"Bearer {RAILRADAR_KEY}"},
+        timeout=10,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def annotate_route_with_live_status(route_result: dict, limit: int = 5):
+    """
+    Attaches m-Indicator style live train board (past departed + upcoming)
+    to a route dict based on the first train boarding station in the route.
+    """
+    edges = route_result.get("edges", [])
+    path = route_result.get("path", [])
+
+    # Find the boarding station for the first train segment
+    boarding_station = None
+    target_station = path[-1] if path else None
+
+    for edge in edges:
+        if edge.get("mode") == "train":
+            boarding_station = edge.get("from")
             break
-    return matches
 
+    # If no train edge exists, return empty list
+    if not boarding_station:
+        route_result["live_trains"] = []
+        return route_result
 
-def annotate_route_with_live_status(route_result, limit=3):
-    """Attach live_trains: [{train_number, route_name, status, delay_minutes}]
-    to a route dict. Best-effort: swallows per-train fetch errors."""
-    station_names = route_result.get("path", [])
+    # Look up station code
+    norm_name = boarding_station.strip().lower()
+    code = STATION_CODES.get(norm_name) or STATION_CODES.get(_normalize(boarding_station))
+
+    if not code:
+        route_result["live_trains"] = []
+        return route_result
+
     try:
-        all_trains = get_local_trains("Mumbai")
+        board_data = get_station_live_board(code, hours=2)
     except Exception:
         route_result["live_trains"] = []
         return route_result
 
-    matches = find_relevant_trains(station_names, all_trains, limit=limit)
-    live_trains = []
-    for train_number, route_name in matches:
-        try:
-            live = get_train_live(train_number)
-            live_data = live.get("data", {}) if isinstance(live, dict) else {}
-            live_trains.append({
-                "train_number": train_number,
-                "route_name": route_name,
-                "status": live_data.get("status"),
-                "delay_minutes": live_data.get("delayMinutes"),
-            })
-        except Exception:
-            continue
+    raw_trains = (
+        board_data.get("data", {}).get("trains", [])
+        if isinstance(board_data, dict)
+        else []
+    )
 
-    route_result["live_trains"] = live_trains
+    if not raw_trains:
+        route_result["live_trains"] = []
+        return route_result
+
+    # Direction matching: find target station code if available
+    target_code = None
+    if target_station:
+        norm_target_name = target_station.strip().lower()
+        target_code = STATION_CODES.get(norm_target_name) or STATION_CODES.get(_normalize(target_station))
+
+    departed = []
+    upcoming = []
+
+    for item in raw_trains:
+        t_info = item.get("train", {})
+        stop_info = item.get("stop", {})
+        live_info = item.get("live", {})
+
+        status_type = live_info.get("type", "scheduled")
+        delay = live_info.get("delayMinutes", 0)
+        dep_time = stop_info.get("departure") or stop_info.get("arrival") or ""
+        platform = stop_info.get("platform", "—")
+
+        train_dest = t_info.get("destination", "")
+        train_name = t_info.get("name", "")
+
+        # If user is heading towards Panvel (PNVL), prioritize trains going that way
+        is_relevant = True
+        if target_code and target_station:
+            norm_target = _normalize(target_station)
+            if target_code != train_dest and norm_target not in _normalize(train_name):
+                is_relevant = False
+
+        entry = {
+            "train_number": t_info.get("number"),
+            "route_name": train_name,
+            "departure_time": dep_time,
+            "platform": platform,
+            "status": status_type,
+            "delay_minutes": delay,
+            "is_direct_target": is_relevant,
+        }
+
+        if status_type == "departed":
+            departed.append(entry)
+        else:
+            upcoming.append(entry)
+
+    # Filter to relevant direction if matches found, else fallback to all
+    relevant_departed = [t for t in departed if t["is_direct_target"]] or departed
+    relevant_upcoming = [t for t in upcoming if t["is_direct_target"]] or upcoming
+
+    # Clean up internal flag
+    for t in relevant_departed + relevant_upcoming:
+        t.pop("is_direct_target", None)
+
+    # Pick 2 recently departed + upcoming trains
+    selected_trains = []
+    if relevant_departed:
+        selected_trains.extend(relevant_departed[-2:])
+    selected_trains.extend(relevant_upcoming[:limit])
+
+    route_result["live_trains"] = selected_trains
     return route_result
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-    pprint(get_local_trains("Mumbai"))
