@@ -1,0 +1,39 @@
+-- 1. RBI node
+INSERT INTO nodes (name, location, type) VALUES
+('RBI', ST_SetSRID(ST_MakePoint(73.0468000, 19.0217000), 4326), 'metro');
+
+-- 2. Rewire metro: remove old direct edge, insert split via RBI
+DELETE FROM edges
+WHERE from_node = (SELECT id FROM nodes WHERE name='Belapur CBD')
+  AND to_node   = (SELECT id FROM nodes WHERE name='Belpada')
+  AND mode = 'metro';
+
+INSERT INTO edges (from_node, to_node, mode, distance, time, cost) VALUES
+((SELECT id FROM nodes WHERE name='Belapur CBD'), (SELECT id FROM nodes WHERE name='RBI'),     'metro', 0.4, 2, 4),
+((SELECT id FROM nodes WHERE name='RBI'),          (SELECT id FROM nodes WHERE name='Belpada'), 'metro', 0.4, 2, 4);
+
+-- 3. Sagar Sangam topology fix
+DELETE FROM edges
+WHERE from_node = (SELECT id FROM nodes WHERE name='Nerul')
+  AND to_node   = (SELECT id FROM nodes WHERE name='Sagar Sangam');
+
+INSERT INTO edges (from_node, to_node, mode, distance, time, cost) VALUES
+((SELECT id FROM nodes WHERE name='Seawoods-Darave'), (SELECT id FROM nodes WHERE name='Sagar Sangam'), 'train', 2.0, 3, 5);
+
+INSERT INTO edges (from_node, to_node, mode, distance, time, cost) VALUES
+((SELECT id FROM nodes WHERE name='Belpada'),  (SELECT id FROM nodes WHERE name='Kharghar'), 'walking', 0.6, 8, 0),
+((SELECT id FROM nodes WHERE name='Kharghar'), (SELECT id FROM nodes WHERE name='Belpada'),  'walking', 0.6, 8, 0);
+
+
+-- 1. Check for duplicate RBI rows
+SELECT id, name FROM nodes WHERE name = 'RBI';
+
+-- 2. If two rows come back, delete the newer duplicate (keep the lower id, which has edges pointing to it)
+DELETE FROM nodes WHERE name = 'RBI' AND id NOT IN (
+  SELECT MIN(id) FROM nodes WHERE name = 'RBI'
+);
+
+-- 3. Now just the walking edge (this is the only thing still missing)
+INSERT INTO edges (from_node, to_node, mode, distance, time, cost) VALUES
+((SELECT id FROM nodes WHERE name='Belpada'),  (SELECT id FROM nodes WHERE name='Kharghar'), 'walking', 0.6, 8, 0),
+((SELECT id FROM nodes WHERE name='Kharghar'), (SELECT id FROM nodes WHERE name='Belpada'),  'walking', 0.6, 8, 0);

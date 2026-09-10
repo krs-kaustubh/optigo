@@ -1,0 +1,29 @@
+-- Main corridor
+UPDATE edges SET distance=1 WHERE from_node=(SELECT id FROM nodes WHERE name='Vashi') AND to_node=(SELECT id FROM nodes WHERE name='Sanpada');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Sanpada') AND to_node=(SELECT id FROM nodes WHERE name='Juinagar');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Juinagar') AND to_node=(SELECT id FROM nodes WHERE name='Nerul');
+UPDATE edges SET distance=1 WHERE from_node=(SELECT id FROM nodes WHERE name='Nerul') AND to_node=(SELECT id FROM nodes WHERE name='Seawoods-Darave');
+UPDATE edges SET distance=3 WHERE from_node=(SELECT id FROM nodes WHERE name='Seawoods-Darave') AND to_node=(SELECT id FROM nodes WHERE name='Belapur CBD');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Belapur CBD') AND to_node=(SELECT id FROM nodes WHERE name='Kharghar');
+UPDATE edges SET distance=3 WHERE from_node=(SELECT id FROM nodes WHERE name='Kharghar') AND to_node=(SELECT id FROM nodes WHERE name='Mansarovar');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Mansarovar') AND to_node=(SELECT id FROM nodes WHERE name='Khandeshwar');
+UPDATE edges SET distance=3 WHERE from_node=(SELECT id FROM nodes WHERE name='Khandeshwar') AND to_node=(SELECT id FROM nodes WHERE name='Panvel');
+
+-- Uran branch
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Belapur CBD') AND to_node=(SELECT id FROM nodes WHERE name='Sagar Sangam');
+UPDATE edges SET distance=3 WHERE from_node=(SELECT id FROM nodes WHERE name='Seawoods-Darave') AND to_node=(SELECT id FROM nodes WHERE name='Sagar Sangam');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Sagar Sangam') AND to_node=(SELECT id FROM nodes WHERE name='Targhar');
+UPDATE edges SET distance=3 WHERE from_node=(SELECT id FROM nodes WHERE name='Targhar') AND to_node=(SELECT id FROM nodes WHERE name='Bamandongri');
+UPDATE edges SET distance=2 WHERE from_node=(SELECT id FROM nodes WHERE name='Bamandongri') AND to_node=(SELECT id FROM nodes WHERE name='Kharkopar');
+
+-- Metro (proportional split of official 11.1km total over 10 hops)
+UPDATE edges SET distance=0.5 WHERE from_node=(SELECT id FROM nodes WHERE name='Belapur CBD') AND to_node=(SELECT id FROM nodes WHERE name='RBI');
+UPDATE edges SET distance=0.5 WHERE from_node=(SELECT id FROM nodes WHERE name='RBI') AND to_node=(SELECT id FROM nodes WHERE name='Belpada');
+UPDATE edges SET distance=0.7 WHERE from_node=(SELECT id FROM nodes WHERE name='Belpada') AND to_node=(SELECT id FROM nodes WHERE name='Utsav Chowk');
+UPDATE edges SET distance=0.8 WHERE from_node=(SELECT id FROM nodes WHERE name='Utsav Chowk') AND to_node=(SELECT id FROM nodes WHERE name='Kendriya Vihar');
+UPDATE edges SET distance=1.3 WHERE from_node=(SELECT id FROM nodes WHERE name='Kendriya Vihar') AND to_node=(SELECT id FROM nodes WHERE name='Kharghar Village');
+UPDATE edges SET distance=1.4 WHERE from_node=(SELECT id FROM nodes WHERE name='Kharghar Village') AND to_node=(SELECT id FROM nodes WHERE name='Central Park');
+UPDATE edges SET distance=1.6 WHERE from_node=(SELECT id FROM nodes WHERE name='Central Park') AND to_node=(SELECT id FROM nodes WHERE name='Pethpada');
+UPDATE edges SET distance=1.2 WHERE from_node=(SELECT id FROM nodes WHERE name='Pethpada') AND to_node=(SELECT id FROM nodes WHERE name='Amandoot');
+UPDATE edges SET distance=1.1 WHERE from_node=(SELECT id FROM nodes WHERE name='Amandoot') AND to_node=(SELECT id FROM nodes WHERE name='Pethali-Taloja');
+UPDATE edges SET distance=1.1 WHERE from_node=(SELECT id FROM nodes WHERE name='Pethali-Taloja') AND to_node=(SELECT id FROM nodes WHERE name='Pendhar');
