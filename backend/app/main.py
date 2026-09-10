@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from app.graph import shortest_path, compare_routes
+from app.railradar import annotate_route_with_live_status
 
 app = FastAPI(title="Optigo API")
 
@@ -20,5 +21,9 @@ def get_route(source: int = Query(1), target: int = Query(5), weight: str = Quer
     return shortest_path(source, target, weight)
 
 @app.get("/compare")
-def compare(source: int = Query(1), target: int = Query(5)):
-    return compare_routes(source, target)
+def compare(source: int = Query(1), target: int = Query(5), live: bool = Query(False)):
+    result = compare_routes(source, target)
+    if live:
+        for route in result:
+            annotate_route_with_live_status(route, limit=3)
+    return result
