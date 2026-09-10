@@ -65,6 +65,34 @@ def shortest_path(source: int, target: int, weight: str = "time"):
     return {"path": [NODES[n]["name"] for n in path], "edges": edges_used, "totals": total}
 
 
+def shortest_path_cost_approx(source: int, target: int):
+    """Approximate cost search: uses per-edge fare (fare_for_distance applied
+    per-edge, not cumulative per-mode) as weight. Not exact — real_fare is a
+    per-mode cumulative slab, not additive — but finds low-fare paths that
+    time/distance optimal search can miss (e.g. routes using cheap walking
+    edges or short train hops)."""
+    G, NODES = build_graph(weight="time")
+    for u, v, data in G.edges(data=True):
+        data["fare_weight"] = fare_for_distance(data["distance"], data["mode"])
+
+    path = nx.shortest_path(G, source, target, weight="fare_weight")
+    total = {"distance": 0, "time": 0, "cost": 0, "real_fare": 0}
+    edges_used = []
+    mode_distances = {}
+
+    for u, v in zip(path, path[1:]):
+        edge = G[u][v]
+        total["distance"] += edge["distance"]
+        total["time"] += edge["time"]
+        total["cost"] += edge["cost"]
+        mode_distances[edge["mode"]] = mode_distances.get(edge["mode"], 0) + edge["distance"]
+        edges_used.append({"from": NODES[u]["name"], "to": NODES[v]["name"], "mode": edge["mode"]})
+
+    total["real_fare"] = sum(fare_for_distance(km, mode) for mode, km in mode_distances.items())
+
+    return {"path": [NODES[n]["name"] for n in path], "edges": edges_used, "totals": total}
+
+
 def compare_routes(source: int, target: int):
     candidates = {}
     for weight in ["time", "distance"]:
@@ -73,11 +101,18 @@ def compare_routes(source: int, target: int):
         except Exception:
             pass
 
+    try:
+        candidates["fare_approx"] = shortest_path_cost_approx(source, target)
+    except Exception:
+        pass
+
     if not candidates:
         return []
 
     results = []
     for weight, r in candidates.items():
+        if weight == "fare_approx":
+            continue
         r = dict(r)
         r["optimized_for"] = weight
         results.append(r)
