@@ -22,7 +22,6 @@ def fare_for_distance(km, mode):
 
 
 def fetch_nodes():
-    # RPC needed — Supabase client can't unpack PostGIS GEOMETRY directly
     res = supabase.rpc("get_nodes_with_coords").execute()
     return {row["id"]: {"name": row["name"], "lat": row["lat"], "lng": row["lng"]} for row in res.data}
 
@@ -67,10 +66,6 @@ def shortest_path(source: int, target: int, weight: str = "time"):
 
 
 def compare_routes(source: int, target: int):
-    # "cost" isn't searched directly — real_fare is a per-mode cumulative slab,
-    # not a per-edge additive weight, so Dijkstra can't optimize it exactly.
-    # Instead: compute the time- and distance-optimal paths, then report
-    # whichever of those two actually has the lower real_fare as "cost".
     candidates = {}
     for weight in ["time", "distance"]:
         try:
@@ -93,3 +88,17 @@ def compare_routes(source: int, target: int):
     results.append(cost_result)
 
     return results
+
+
+if __name__ == "__main__":
+    from pprint import pprint
+
+    BELAPUR_CBD = 6
+    PENDHAR = 23
+    KHARKOPAR = 14
+
+    print("=== Belapur CBD -> Pendhar ===")
+    pprint(compare_routes(BELAPUR_CBD, PENDHAR))
+
+    print("\n=== Belapur CBD -> Kharkopar ===")
+    pprint(compare_routes(BELAPUR_CBD, KHARKOPAR))
