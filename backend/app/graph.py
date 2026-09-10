@@ -67,12 +67,29 @@ def shortest_path(source: int, target: int, weight: str = "time"):
 
 
 def compare_routes(source: int, target: int):
-    results = []
-    for weight in ["time", "cost", "distance"]:
+    # "cost" isn't searched directly — real_fare is a per-mode cumulative slab,
+    # not a per-edge additive weight, so Dijkstra can't optimize it exactly.
+    # Instead: compute the time- and distance-optimal paths, then report
+    # whichever of those two actually has the lower real_fare as "cost".
+    candidates = {}
+    for weight in ["time", "distance"]:
         try:
-            r = shortest_path(source, target, weight)
-            r["optimized_for"] = weight
-            results.append(r)
+            candidates[weight] = shortest_path(source, target, weight)
         except Exception:
             pass
+
+    if not candidates:
+        return []
+
+    results = []
+    for weight, r in candidates.items():
+        r = dict(r)
+        r["optimized_for"] = weight
+        results.append(r)
+
+    cheapest = min(candidates.values(), key=lambda r: r["totals"]["real_fare"])
+    cost_result = dict(cheapest)
+    cost_result["optimized_for"] = "cost"
+    results.append(cost_result)
+
     return results
