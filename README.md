@@ -2,56 +2,50 @@
 
 **One App, Every Route, Optimized for You**
 
-A multimodal journey-planning platform (app + web) that finds the most optimal route between two points based on *your* constraints — time, cost, or distance — instead of defaulting to one fixed suggestion. Launching first in **Navi Mumbai**.
+A multimodal journey-planning engine for **Navi Mumbai** that finds optimal routes across train, metro, and walking — ranked by time, cost, or distance. Built as a PBL-Mini Project (KJSIT, SY Engineering).
 
-Built as a Final PBL-Mini Project.
-
----
-
-## Table of Contents
-
-- [The Problem](#the-problem)
-- [The Idea](#the-idea)
-- [Repo Structure](#repo-structure)
-- [Tech Stack](#tech-stack)
-- [Current Status](#current-status)
-- [Backend](#backend)
-- [Frontend](#frontend)
-- [Full Feature Set (Vision)](#full-feature-set-vision)
-- [Known Issues](#known-issues)
-- [Roadmap](#roadmap)
-- [Timeline](#timeline)
-- [License](#license)
+> [!NOTE]
+> Backend is live and functional. Frontend is scaffold-only (`create-next-app`).
+> Demo deadline: **Sep 11, 2026** (showable) · **Oct 9, 2026** (final).
 
 ---
 
-## The Problem
+## How It Works
 
-Getting around a city today means juggling separate apps — one for cabs, one for metro, one for buses, one for maps — and manually comparing them yourself. There's no single system that says: *"Given your priorities, here are all your real options, ranked."*
-
-## The Idea
-
-Optigo treats a city's transport network like a graph — stations, bus stops, auto stands, and taxi hubs are **nodes**; routes between them are **edges**. The engine scans this graph and surfaces multiple viable paths, each scored on time, cost, and distance.
-
-**Positioning:** *Google Maps + Chalo + Splitwise of urban mobility — one app that finds, compares, books, and tracks every way to get where you're going.*
-
----
-
-## Repo Structure
+Optigo models Navi Mumbai's transit network as a **directed graph** — stations are nodes, rail/metro/walking connections are edges. Given a source and destination, it runs Dijkstra three times (optimizing time, distance, and cost separately) and returns three route candidates with real fare calculations.
 
 ```
-optigo/
-├── backend/                FastAPI + NetworkX routing engine
-│   └── app/
-│       ├── main.py         API routes: /health, /route, /compare
-│       └── graph.py        Fetches nodes/edges from Supabase, builds graph, runs Dijkstra
-├── frontend/                Next.js web client (in progress — currently default scaffold)
-├── sql-schema/              Supabase seed SQL: schema, node inserts, edge inserts, helper function
-├── requirements.txt         Backend deps (dev copy, kept in sync with backend/requirements.txt)
-└── README.md                you are here — single source of truth for setup + docs
+┌─────────────┐     GET /compare?source=6&target=23
+│  Frontend   │────────────────────────────────────────────┐
+│  (Next.js)  │                                            ▼
+└─────────────┘                                   ┌──────────────┐
+                                                  │   FastAPI     │
+                                                  │   main.py     │
+                                                  └──────┬───────┘
+                                                         │
+                              ┌───────────────────┬──────┴───────┐
+                              ▼                   ▼              ▼
+                        ┌──────────┐       ┌──────────┐   ┌───────────┐
+                        │ graph.py │       │railradar │   │ Supabase  │
+                        │ NetworkX │◄─────►│  .py     │   │ Postgres  │
+                        │ Dijkstra │       │ live API │   │ + PostGIS │
+                        └──────────┘       └──────────┘   └───────────┘
 ```
 
-> This file replaces the previous `README.md` + `readme.md` + `technical_documnetation.md` at root and `frontend/README.md` — all backend/frontend setup, architecture, and API docs now live here in one place.
+---
+
+## Network Coverage
+
+**24 stations** across 3 lines:
+
+| Line | Stations | Edges |
+|---|---|---|
+| **Harbour Rail** (Vashi–Panvel) | Vashi → Sanpada → Juinagar → Nerul → Seawoods-Darave → Belapur CBD → Kharghar → Mansarovar → Khandeshwar → Panvel | 14 train |
+| **Uran Branch** (via Sagar Sangam) | Seawoods-Darave → Sagar Sangam, Belapur CBD → Sagar Sangam → Targhar → Bamandongri → Kharkopar | (included above) |
+| **Metro Line 1** (Belapur–Pendhar) | Belapur CBD → RBI → Belpada → Utsav Chowk → Kendriya Vihar → Kharghar Village → Central Park → Pethpada → Amandoot → Pethali-Taloja → Pendhar | 10 metro |
+| **Walking** | Belpada ↔ Kharghar (both directions) | 2 walking |
+
+**Interchange node:** Belapur CBD (rail ↔ metro)
 
 ---
 
@@ -59,76 +53,188 @@ optigo/
 
 | Layer | Choice |
 |---|---|
-| Frontend | Next.js 16 (TypeScript, Tailwind), React 19 — React Native planned later |
-| Backend | FastAPI (Python) |
+| Backend | Python · FastAPI |
+| Routing | NetworkX (Dijkstra) |
 | Database | Supabase (Postgres + PostGIS) |
-| Routing engine | NetworkX (Dijkstra) |
-| Maps | Mapbox |
-| Hosting | Vercel (frontend) + Render (backend) |
+| Live train data | RailRadar API (sandbox tier) |
+| Frontend | Next.js 16 · React 19 · Tailwind |
+| Hosting (planned) | Vercel (frontend) + Render (backend) |
 
 ---
 
-## Current Status
+## Repo Structure
 
-**Backend — live and functional.** Real Navi Mumbai transit data (23 stations, 23 routes across three lines: the Vashi–Panvel Harbour rail corridor, the Uran-Ulwe branch via Sagar Sangam junction cut off at Kharkopar, and the Belapur–Pendhar Metro Line 1) is stored in Supabase and served through a working `/route` and `/compare` API. CORS middleware is already configured for `http://localhost:3000`.
-
-**Frontend — not yet built.** Currently default `create-next-app` boilerplate (Next 16.2.12 / React 19.2.4), no UI wired to the backend.
-
-**Fare/time data — estimated**, not yet sourced from official Central Railway or Navi Mumbai Metro fare charts. Flagged for verification before any public demo.
+```
+optigo/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py          # FastAPI routes + CORS
+│   │   ├── graph.py          # Supabase fetch, graph build, Dijkstra, fare calc
+│   │   └── railradar.py      # RailRadar API: live train status
+│   ├── requirements.txt
+│   └── .env                   # (gitignored) secrets
+├── frontend/                   # Next.js — currently create-next-app scaffold
+├── sql-schema/                 # Supabase seed SQL
+│   ├── nodes-edges             # Table DDL
+│   ├── nodes-data              # Station inserts
+│   ├── edge-data               # Edge inserts
+│   ├── postgres                # get_nodes_with_coords() function
+│   ├── update-node-edge-data   # RBI node + topology fixes
+│   └── 6. Distance Update      # Real chainage distances
+├── requirements.txt            # Root-level deps (kept in sync)
+└── README.md                   # ← you are here
+```
 
 ---
 
-## Backend
+## Setup
 
-FastAPI service that computes optimal multimodal routes over a real Navi Mumbai transit graph, using NetworkX (Dijkstra) with data stored in Supabase (Postgres + PostGIS).
+### Backend
 
-### Setup
-
-**1. Install dependencies**
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-**2. Environment variables**
-
-Create `backend/.env` (already gitignored — never commit this):
-```
+Create `backend/.env`:
+```env
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-secret-key
+SUPABASE_KEY=your-supabase-secret-key
+RAILRADAR_API_KEY=your-railradar-key
 ```
-Get both from Supabase dashboard → **Project Settings → API**:
-- `SUPABASE_URL` — Project URL (also visible on the project overview page)
-- `SUPABASE_KEY` — the **secret** key (`sb_secret_...`), not the publishable/anon key. This is a privileged server-side key — never expose it client-side or commit it.
 
-**3. Run the server**
+| Variable | Where to get it |
+|---|---|
+| `SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
+| `SUPABASE_KEY` | Same page → `secret` key (server-side, not the anon key) |
+| `RAILRADAR_API_KEY` | [railradar.in](https://railradar.in) — free sandbox tier (1,000 req/month) |
+
+Run the server:
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
-Interactive API docs (Swagger UI): `http://127.0.0.1:8000/docs`
 
-### Request flow
+Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-```
-Client (browser/curl)
-    │  GET /route?source=1&target=7&weight=time
-    ▼
-Uvicorn (ASGI server, listens on the port)
-    ▼
-FastAPI (main.py) — matches route, extracts query params
-    ▼
-graph.py — build_graph() fetches fresh nodes/edges from Supabase, constructs NetworkX DiGraph
-    ▼
-nx.shortest_path() — runs Dijkstra with the chosen weight
-    ▼
-JSON response — path / edges / totals
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-`graph.py` fetches fresh data from Supabase on every request via `fetch_nodes()`/`fetch_edges()` — nothing is hardcoded. `main.py` never touches the database directly; it only calls `shortest_path()`/`compare_routes()`. Each edge carries `mode`, `distance`, `time`, and `cost`, plus a generic `weight` attribute copied from whichever of the three is currently selected — that's what Dijkstra actually minimizes. All edge types (`bus`, `cab`, `train`, `metro`) are added to the graph in both directions.
+Opens at [http://localhost:3000](http://localhost:3000). Currently default Next.js boilerplate — no Optigo UI yet.
 
-### Database schema
+### CORS
 
-Two tables in Supabase (Postgres + PostGIS) — full seed SQL lives in [`sql-schema/`](sql-schema/):
+Backend currently allows `http://localhost:3000` only. Update `allow_origins` in `backend/app/main.py` before deploying to production.
+
+---
+
+## API Reference
+
+### `GET /health`
+
+Health check.
+
+```json
+{ "status": "ok" }
+```
+
+### `GET /route`
+
+Single optimal route between two nodes.
+
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `source` | int | required | Source node ID |
+| `target` | int | required | Target node ID |
+| `weight` | string | `"time"` | Optimize for `time`, `distance`, or `cost` |
+
+**Response:**
+```json
+{
+  "path": ["Belapur CBD", "RBI", "Belpada", "..."],
+  "edges": [
+    { "from": "Belapur CBD", "to": "RBI", "mode": "metro", "distance": 1.0, "time": 2 }
+  ],
+  "total_distance": 10.2,
+  "total_time": 22,
+  "real_fare": 40
+}
+```
+
+### `GET /compare`
+
+Three route candidates optimized for time, distance, and cost respectively.
+
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `source` | int | required | Source node ID |
+| `target` | int | required | Target node ID |
+| `live` | bool | `false` | Attach RailRadar live delay data to train segments |
+
+**Response:** Array of 3 route objects (same shape as `/route`), each with an `optimized_for` field.
+
+When `live=true`, each route also gets a `live_trains` array:
+```json
+{
+  "live_trains": [
+    {
+      "train_number": "98001",
+      "route_name": "Mumbai CSMT - Panvel Local",
+      "status": "running",
+      "delay_minutes": 5
+    }
+  ]
+}
+```
+
+### `GET /nodes`
+
+All stations with coordinates (calls `get_nodes_with_coords()` Supabase RPC).
+
+---
+
+## Fare Logic
+
+Fares are calculated per-mode using cumulative distance slabs in `graph.py`, **not** the static `cost` column in the database (that's legacy).
+
+### Train (Harbour/Uran lines)
+
+| Distance | Fare |
+|---|---|
+| 0 – 10 km | ₹5 |
+| 11 – 20 km | ₹10 |
+| 21 – 25 km | ₹15 |
+| 26 – 30 km | ₹20 |
+| 31+ km | ₹30 |
+
+### Metro (Line 1)
+
+| Distance | Fare |
+|---|---|
+| 0 – 2 km | ₹10 |
+| 2 – 4 km | ₹15 |
+| 4 – 6 km | ₹20 |
+| 6 – 8 km | ₹25 |
+| 8 – 10 km | ₹30 |
+| 10+ km | ₹40 |
+
+### Walking
+
+Free (₹0).
+
+> [!IMPORTANT]
+> These slabs are **user-estimated** — not yet verified against official Central Railway or NMMC Metro fare notifications. Treat as approximate.
+
+---
+
+## Database Schema
+
+Two tables in Supabase (Postgres + PostGIS):
 
 ```sql
 create extension if not exists postgis;
@@ -153,185 +259,58 @@ create table edges (
 );
 ```
 
-`location` is stored as native PostGIS geometry, not plain lat/lng floats — this enables real geospatial queries (nearest-node, radius search) in later phases. Point order for inserts is **(lng, lat)**, not (lat, lng) — a common PostGIS gotcha.
-
-A helper function decodes geometry back into plain coordinates for the backend to consume:
+Helper function to decode PostGIS geometry into lat/lng:
 ```sql
 create or replace function get_nodes_with_coords()
 returns table(id int, name text, lat double precision, lng double precision, type text)
-language sql
-as $$
+language sql as $$
   select id, name, ST_Y(location) as lat, ST_X(location) as lng, type
   from nodes;
 $$;
 ```
 
-RLS (Row Level Security) is currently **disabled** on both tables. This is safe for now because the backend connects using the secret key, which bypasses RLS regardless, and the data itself (station names/coordinates/costs) is non-sensitive. Enable RLS if the frontend ever queries Supabase directly instead of going through this API.
-
-### Current data — Phase-1 scope
-
-23 real stations across three Navi Mumbai transit lines:
-
-1. **Main Harbour Rail corridor**: Vashi → Sanpada → Juinagar → Nerul → Seawoods-Darave → Belapur CBD → Kharghar → Mansarovar → Khandeshwar → Panvel
-2. **Uran-Ulwe branch**: feeders from both Nerul and Belapur CBD converge at Sagar Sangam junction, then continue Targhar → Bamandongri → Kharkopar (Phase-1 cutoff — Nhava Sheva/Dronagiri/Uran excluded)
-3. **Belapur–Pendhar Metro Line 1**: Belapur CBD → Belpada → Utsav Chowk → Kendriya Vihar → Kharghar Village → Central Park → Pethpada → Amandoot → Pethali-Taloja → Pendhar
-
-No Turbhe/Thane branch included in this phase.
-
-**Data caveat:** `time`/`cost`/`distance` values are estimates derived from published fares (₹5 flat suburban fare, ₹40 end-to-end metro fare split proportionally across hops) and rider review text — not sourced from official Central Railway or Navi Mumbai Metro fare charts. Verify before any public-facing demo.
-
-| ID | Name | Line |
-|---|---|---|
-| 1 | Vashi | Main corridor |
-| 2 | Sanpada | Main corridor |
-| 3 | Juinagar | Main corridor |
-| 4 | Nerul | Main corridor / Uran feeder |
-| 5 | Seawoods-Darave | Main corridor |
-| 6 | Belapur CBD | Main corridor / Uran feeder / Metro interchange |
-| 7 | Sagar Sangam | Uran branch junction |
-| 8 | Kharghar | Main corridor |
-| 9 | Mansarovar | Main corridor |
-| 10 | Khandeshwar | Main corridor |
-| 11 | Panvel | Main corridor |
-| 12 | Targhar | Uran branch |
-| 13 | Bamandongri | Uran branch |
-| 14 | Kharkopar | Uran branch (cutoff) |
-| 15 | Belpada | Metro |
-| 16 | Utsav Chowk | Metro |
-| 17 | Kendriya Vihar | Metro |
-| 18 | Kharghar Village | Metro |
-| 19 | Central Park | Metro |
-| 20 | Pethpada | Metro |
-| 21 | Amandoot | Metro |
-| 22 | Pethali-Taloja | Metro |
-| 23 | Pendhar | Metro |
-
-### API reference
-
-**`GET /health`** — Liveness check.
-```json
-{"status": "ok"}
-```
-
-**`GET /route`** — Single shortest path between two nodes, optimized for one metric.
-
-| Param | Type | Default | Description |
-|---|---|---|---|
-| `source` | int | 1 | Origin node ID |
-| `target` | int | 5 | Destination node ID |
-| `weight` | string | `"time"` | One of `time`, `cost`, `distance` |
-
-Example: `GET /route?source=1&target=11&weight=cost`
-```json
-{
-  "path": ["Vashi", "Sanpada", "..."],
-  "edges": [{"from": "Vashi", "to": "Sanpada", "mode": "train"}, ...],
-  "totals": {"distance": 18.3, "time": 34, "cost": 45}
-}
-```
-
-**`GET /compare`** — Runs the same source/target through all three optimization weights (`time`, `cost`, `distance`) and returns all results together.
-
-| Param | Type | Default | Description |
-|---|---|---|---|
-| `source` | int | 1 | Origin node ID |
-| `target` | int | 5 | Destination node ID |
-
-Example: `GET /compare?source=1&target=23` → array of three route objects (same shape as `/route`), each with an added `"optimized_for"` field.
-
-### Error handling
-
-`nx.shortest_path` raises if no path exists between the given nodes; `compare_routes` swallows that exception per-weight so it returns whatever succeeds rather than failing the whole request. Inputs are raw integer node IDs — no validation that the ID exists, and no way to query by station name yet. A bad `source`/`target` currently returns a raw NetworkX/FastAPI error rather than a clean 404.
-
-### Testing & linting
-
-Nothing set up yet. Recommend `pytest` with a `backend/tests/` folder — good first targets: graph construction (`build_graph` produces the right node/edge count), shortest-path correctness on the known corridor, and specifically the flat-fare aggregation (a multi-hop train journey should total the flat fare, not sum per-hop).
-
-### Deployment guidance (not started)
-
-Containerize with a Dockerfile installing `backend/requirements.txt`, copying `backend/app/`, running via `uvicorn`.
+> Point order for inserts is `(lng, lat)`, not `(lat, lng)` — PostGIS convention.
 
 ---
 
-## Frontend
-
-`frontend/app/page.tsx` and `layout.tsx` are the **unmodified `create-next-app` defaults** — Next.js logo, "edit page.tsx to get started" placeholder text, links to Vercel templates. No custom components, no calls to the backend yet.
-
-### Setup
+## Example Queries
 
 ```bash
-cd frontend
-npm install
-npm run dev
+# Single route, optimize for time
+curl "http://localhost:8000/route?source=6&target=23&weight=time"
+
+# Compare all 3 optimization strategies
+curl "http://localhost:8000/compare?source=6&target=23"
+
+# Compare with live train delay data
+curl "http://localhost:8000/compare?source=6&target=23&live=true"
 ```
-Opens at `http://localhost:3000`. `npm run lint` (ESLint) is configured but nothing custom has been added yet.
 
-### Not yet done, in order
+**Test node IDs:** Belapur CBD = `6`, Pendhar = `23`, Kharkopar = `14`, Panvel = `11`
 
-1. A form component accepting `source`, `target`, `weight`
-2. `fetch()` call to `/route` or `/compare`
-3. Render the returned `path`/`edges`/`totals` as a readable itinerary
-4. Mapbox visualization of the route
-5. Error state for failed calls or no-route-found
-
-### Deployment guidance
-
-`npm run build`, deploy to Vercel per the confirmed tech stack. Point API calls at the deployed backend URL, not `localhost`.
-
----
-
-## Full Feature Set (Vision)
-
-| # | Feature | Description |
-|---|---|---|
-| 1 | Unified Ticketing | Book across rail, metro, bus, and auto/cab providers in one place |
-| 2 | Multi-Factor Comparison | Compare routes by time, fuel/fiscal cost, and emissions |
-| 3 | Graph-Based Route Engine | Node-edge model connecting all transit hubs in an area |
-| 4 | Offline Ticket Wallet | Store trip tickets offline, like Google Wallet |
-| 5 | Emergency Location Sharing | Share live location with trusted contacts during a trip |
-| 6 | AI Trip Assistant | Suggests and adjusts your plan on the fly |
-| 7 | 3D Space Mapping | Indoor maps for malls, parking lots, parks |
-| 8 | Local Travel Guides | Hire vetted local guides (85/15 revenue split) |
-| 9 | Accessibility & Equity Pricing | Discounted fares for PWD, women, elderly |
-| 10 | Advance Journey Planning | Web-first trip planning tools |
-| 11 | Live Transit Radar | Real-time map view of moving vehicles |
-| 12 | Public Vehicle Status | Live delays/crowding/ETAs, consolidated |
-
-The current build covers the foundation for #2 and #3. Everything else is roadmap, planned for after the initial submission.
-
-**Architecture notes for later phases:**
-- **Plan Mode vs. Live Mode**: Feature #10 (Advance Planning) is a web-first, "before you leave" experience; most of the rest (#3, #11, #12) are real-time, on-the-go tools. Structuring the product around these two modes could make both UX and engineering cleaner.
-- **Shared Live Data Engine**: Features #11 (Radar) and #12 (Status) depend on the same live-location/schedule feeds, just presented differently — worth building as one backend with two frontends.
-- **Data partnerships are a dependency, not just a UI feature**: live radar/status for buses, autos, and cabs needs GPS feeds from operators or crowdsourced data, unlike rail data which has more established public feeds.
-- Checked for a public API/MCP for live Mumbai local train status (m-Indicator, Where is my Train, NTES, RailRadar) — none currently expose one publicly. Revisit if that changes.
-
----
-
-## Known Issues
-
-1. Fare-zone edge case: boarding directly at certain intermediate stations may show incorrect fare totals — not yet fully verified across all edges.
-2. No true trade-off frontier yet — for a given source/target, `/compare` currently returns one path per weight, not multiple distinct alternative routes (e.g. train vs. direct cab vs. bus+train combo) unless the graph naturally forks.
-3. Root `.gitignore` malformed (literal `\n` characters instead of real line breaks) — currently harmless since the `frontend`/`backend` subfolder `.gitignore` files correctly cover what matters, but should be fixed.
+**Known results:**
+- **Belapur CBD → Pendhar:** Time/distance optimal = all-metro via RBI (10.2 km, ₹40). Cost optimal = train + walk + metro via Kharghar (11.8 km, ₹35).
+- **Belapur CBD → Kharkopar:** All 3 strategies return the same route via Sagar Sangam (9 km, ₹5).
 
 ---
 
 ## Roadmap
 
-1. Frontend: source/destination form → `/compare` → render results → Mapbox
-2. Verify fare/time data against official sources
-3. Add station-name-based lookups instead of requiring raw integer IDs
-4. Add emissions as a 4th comparison metric
-5. Add multi-objective optimization (minimize time *and* cost jointly, not just one at a time)
-6. Add caching for repeated route queries once query volume matters
-7. Post-submission: ML layer for dynamic edge weights (delay prediction, crowding), eventually reinforcement learning for adaptive routing
+- [x] Graph engine with Dijkstra (NetworkX)
+- [x] Supabase migration (nodes, edges, PostGIS)
+- [x] Real chainage distances (Harbour, Uran, Metro)
+- [x] Fare slab logic (per-mode cumulative)
+- [x] 3-candidate compare (`/compare`)
+- [x] RailRadar live-status integration (`/compare?live=true`)
+- [ ] Frontend: map UI with route visualization
+- [ ] CORS: set production origin before deploy
+- [ ] Verify fare slabs against official notifications
+- [ ] Deploy: Vercel (frontend) + Render (backend)
+- [ ] Optional: slab-aware DP for exact cost optimality
+- [ ] Optional: officially source metro per-hop distances
 
 ---
 
-## Timeline
-
-- **Sep 11, 2026** — showable web demo
-- **Oct 9, 2026** — final submission
-
 ## License
 
-Not yet decided.
+Unlicensed — academic project.
