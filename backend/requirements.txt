@@ -4,6 +4,7 @@ anyio==4.14.2
 asarPy==1.0.1
 certifi==2026.7.22
 cffi==2.1.1
+charset-normalizer==3.5.1
 click==8.4.2
 cryptography==50.0.1
 deprecation==2.1.0
@@ -18,6 +19,7 @@ idna==3.18
 multidict==6.7.1
 networkx==3.6.1
 packaging==26.3
+pillow==12.3.0
 postgrest==2.31.0
 propcache==0.5.2
 pycparser==3.0
@@ -26,6 +28,8 @@ pydantic_core==2.46.4
 PyJWT==2.13.0
 python-dotenv==1.2.2
 realtime==2.31.0
+reportlab==5.0.1
+requests==2.34.2
 starlette==1.4.1
 storage3==2.31.0
 StrEnum==0.4.15
@@ -34,6 +38,7 @@ supabase-auth==2.31.0
 supabase-functions==2.31.0
 typing-inspection==0.4.2
 typing_extensions==4.16.0
+urllib3==2.7.0
 uvicorn==0.52.1
 websockets==15.0.1
 yarl==1.24.5
