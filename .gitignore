@@ -7,3 +7,7 @@ dist/
 ARCHITECTURE.md
 plan.md
 REPO.md
+log.md
+.venv/
+venv/
+__pycache__/
