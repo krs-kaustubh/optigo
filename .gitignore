@@ -11,3 +11,4 @@ log.md
 .venv/
 venv/
 __pycache__/
+handoff.md

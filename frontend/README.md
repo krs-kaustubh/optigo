@@ -1,42 +1,36 @@
-# Optigo Frontend
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Next.js 16 (app router) · React 19 · Tailwind 4 · TypeScript. One screen that drives the Optigo backend: pick a source and destination, choose what to optimise for, and see the three route candidates.
+## Getting Started
 
-> Project overview and API reference → [root README](../README.md).
-
-## Run
+First, run the development server:
 
 ```bash
-npm install
-npm run dev            # Turbopack, http://localhost:3000
-npm run dev:webpack    # fallback if `next dev` exits silently
-npm run build && npm run start
-npm run lint
-npx tsc --noEmit
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-The backend must be running on `http://localhost:8000` (or set `NEXT_PUBLIC_API_URL`). The backend's CORS list allows **only** `http://localhost:3000`, so run the frontend on that port.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Structure
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-```
-app/
-├── page.tsx                  client component: station pickers (from /nodes), optimise-for radio,
-│                             submit, 3 RouteCards, error notice; reads ?from&to&for on load
-├── layout.tsx                fonts + metadata
-└── components/RouteCard.tsx  one candidate: time / distance / fare, mode segments, station list
-lib/
-├── api.ts                    typed client — fetchStations(), compareRoutes(); ApiError; all response types
-└── routes.ts                 pure helpers — segments(), orderRoutes(), samePath(), formatMinutes(), labels
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Behaviour
+## Learn More
 
-- **Optimise for** does not change the request; `/compare` always returns all three. It orders the cards (chosen first, tagged "your pick"). A card whose path duplicates an earlier one says "Same journey as the … route".
-- **Shareable links:** `/?from=11&to=1&for=cost` pre-fills and runs the search; submitting writes the same params to the URL.
-- **Errors** from the backend are shown verbatim (`unknown node id 999`, `source and target are the same node (1)`). A fetch failure shows "Cannot reach the backend at … Is uvicorn running, and does its CORS allow <origin>?" — the same message covers a down server and a CORS refusal.
-- **Live status** (`live_trains`, `live_status`) is typed in `lib/api.ts` but not rendered yet — that is Phase 3.
+To learn more about Next.js, take a look at the following resources:
 
-## Verified
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-`tsc`, `eslint` and `next build` are clean. Headless-Chrome renders against the live backend were checked for: home (24 stations load), Panvel→Vashi, Belapur→Pendhar, same-node and unknown-node errors.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -5,7 +5,7 @@
 A multimodal journey-planning engine for **Navi Mumbai** that finds optimal routes across train, metro, and walking — ranked by time, distance, or fare — and shows the live suburban-train board for the leg you'd actually board. Built as a PBL-Mini Project (KJSIT, SY Engineering).
 
 > [!NOTE]
-> **Status (2026-09-23):** backend audited, fixed and tested (48 tests); frontend has one working screen wired to the real API (pick stations → 3 route cards). Live train status is implemented in the backend and is the next thing to surface in the UI.
+> **Status (2026-09-25):** backend audited, fixed and tested (48 tests); live train status implemented and filtered server-side. Frontend is the `create-next-app` scaffold, being built by the frontend owner against the API contract below (a throwaway reference UI lives on branch `frontend-reference`).
 > Demo deadline: **Oct 9, 2026** (final).
 
 ---
@@ -86,10 +86,7 @@ optigo/
 │   │   └── test_routing_errors.py   20 tests — validation, error codes, /nodes, Supabase retry
 │   ├── requirements.txt       the pin list
 │   └── .env                   (gitignored) SUPABASE_URL, SUPABASE_KEY, RAILRADAR_API_KEY
-├── frontend/
-│   ├── app/page.tsx           the one screen: pickers, optimise-for, 3 route cards
-│   ├── app/components/RouteCard.tsx
-│   └── lib/api.ts, lib/routes.ts   typed API client + pure helpers
+├── frontend/                  Next.js 16 scaffold (create-next-app) — frontend owner's workspace
 ├── sql-schema/                Supabase seed SQL (DDL, nodes, edges, RPC, fixes)
 ├── requirements.txt           forwards to backend/requirements.txt
 ├── future-ideas.md            design notes for features not built yet
@@ -142,11 +139,9 @@ cd backend && ../.venv/bin/python -m unittest discover -s tests -v
 ```bash
 cd frontend
 npm install
-npm run dev            # Turbopack; if it exits silently, use: npm run dev:webpack
+npm run dev            # http://localhost:3000
 ```
-Opens at http://localhost:3000. The backend URL defaults to `http://localhost:8000`; override with `NEXT_PUBLIC_API_URL`.
-
-Shareable links run a search on load: `http://localhost:3000/?from=11&to=1&for=cost`.
+Currently the default Next.js scaffold. The API contract to build against is the reference below; a reference implementation is on branch `frontend-reference`.
 
 ### CORS
 
@@ -291,7 +286,7 @@ curl "http://localhost:8000/compare?source=11&target=1&live=true"
 - [x] 3-candidate compare (`/compare`)
 - [x] RailRadar live board with correct line/direction filtering (`/compare?live=true`)
 - [x] Proper error responses (404/400/422/502) and Supabase reconnect
-- [x] Frontend: station pickers → 3 route cards (Phase 2)
+- [ ] Frontend: station pickers → 3 route cards (Phase 2) — in progress by frontend owner; reference on `frontend-reference`
 - [ ] Frontend: live train board on cards, "not applicable" for metro-only (Phase 3)
 - [ ] Bus (NMMT/Chalo) and Navi Mumbai Metro live data — research (Phase 4; no public API known)
 - [ ] Railway "backing" suggestion — see `future-ideas.md` Idea 1
