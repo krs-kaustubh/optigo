@@ -137,3 +137,113 @@ Builds on `CORRIDORS`, `train_serves()`, `first_train_leg()`, `get_station_live_
 
 ### Cost
 - +1 RailRadar call per pivot per search (cached 60 s). Kharghar→Vashi with pivots capped at 3 = up to 4 calls per live search. Budget accordingly (1,000/month sandbox).
+
+---
+
+## Idea 3 — GPS Nearest-Station Auto-Detect (`/nodes/nearest`)
+
+*Captured 2026-09-26. Simplifies station selection on mobile.*
+
+### The idea
+When a user opens the app on a phone near a station or transit stop, prompt to auto-fill the origin station using device GPS rather than requiring a manual picker selection.
+
+### Implementation
+1. **Frontend:** Use browser `navigator.geolocation.getCurrentPosition()`.
+2. **Backend:** Endpoint `GET /nodes/nearest?lat=<lat>&lng=<lng>&limit=3`.
+3. **Database:** PostGIS query on `nodes.geom` using `ST_Distance(geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography)` ordered by ascending distance.
+4. **Fallback:** If outside 5 km radius, return empty or closest station with a flag `in_range: false`.
+
+### Builds on
+- Existing PostGIS-enabled Supabase instance.
+- RPC function pattern (similar to `get_nodes_with_coords`).
+
+---
+
+## Idea 4 — AC vs Non-AC Suburban Local Filtering & Slabs
+
+*Captured 2026-09-26. Harbour line runs air-conditioned EMUs with different fares and crowd dynamics.*
+
+### The idea
+Many commuters specifically wait for AC locals (or deliberately avoid them due to higher fares). Allow filtering live train boards by AC / Non-AC and computing the correct AC fare slab.
+
+### Implementation
+1. **Identification:** RailRadar train payload flags AC locals via `train.name` (contains "AC"), train numbers (Harbour AC series), or train type code.
+2. **Fare calculation:** Add `AC_TRAIN_FARE_SLABS` in `graph.py` (e.g., minimum ₹35 up to ₹105–₹150 for CSMT–Panvel).
+3. **Filter:** Pass `ac_only=true` or `exclude_ac=true` to `annotate_route_with_live_status()`.
+
+### Builds on
+- `railradar.py` train entry parser (`_train_entry`).
+- `graph.py` `fare_for_distance` slab table.
+
+---
+
+## Idea 5 — Multimodal Interchange Feasibility & Connection Warnings
+
+*Captured 2026-09-26. Prevent tight transfers at Belapur CBD and Kharghar/Belpada.*
+
+### The idea
+When a route involves multiple legs (e.g. Train to Belapur CBD, then walk/switch to Metro Line 1, or Train to Kharghar + walk to Belpada), a simple static timetable or board does not verify whether the passenger can physically make the connection.
+
+### Implementation
+1. **Arrival calculation:** Leg 1 estimated arrival time = departure time + graph edge times for leg 1.
+2. **Transfer buffer:** Add 5 minutes for Belapur CBD rail-metro interchange; add actual walking time (10 min) for Kharghar–Belpada walk.
+3. **Connection window:** Flag the second leg train/metro departure as `"tight"` (< 3 min buffer remaining), `"comfortable"` (3–10 min), or `"missed"` (< 0 min).
+
+### Builds on
+- `graph.py` edge traversal times.
+- `railradar.py` `_departure_datetime` and expected departure calculations.
+
+---
+
+## Idea 6 — Peak-Hour Commute Heatmap & Crowd Heuristic
+
+*Captured 2026-09-26. Central Railway Harbour Line has predictable directional congestion.*
+
+### The idea
+RailRadar has no live passenger crowding sensors. However, Harbour line crowding is strictly predictable by time-of-day and direction. Provide a heuristic crowd indicator tag on train legs.
+
+### Heuristic
+- **Morning Peak (08:30 – 11:30):** Mumbai/CSMT-bound trains from Panvel/Vashi = `Heavy / Crush Load`. Panvel-bound trains = `Light`.
+- **Evening Peak (17:30 – 21:00):** Panvel-bound trains from Vashi/Nerul = `Heavy / Crush Load`. CSMT-bound trains = `Light / Moderate`.
+- **Off-peak / Weekends:** `Normal / Moderate`.
+
+### Builds on
+- `railradar.py` corridor direction detection (`i_s < i_d` vs `i_s > i_d`).
+- Route card presentation in `frontend/app/components/RouteCard.tsx`.
+
+---
+
+## Idea 7 — NMMT Feeder Bus Edge Expansion
+
+*Captured 2026-09-26. Connect rail stations to interior nodes via municipal buses.*
+
+### The idea
+Add Navi Mumbai Municipal Transport (NMMT) bus routes as graph edges for first/last-mile transit (e.g. Vashi Station ↔ APMC Market, Kharghar Station ↔ Sector 35, Nerul Station ↔ LP Junction).
+
+### Implementation
+1. Add new nodes for key Navi Mumbai hubs and transit corridors.
+2. Add directed edges with `mode = 'bus'`, fixed schedule frequencies, and NMMT flat/stage fare slabs.
+3. Graph routing automatically supports bus hopping alongside train and metro.
+
+### Builds on
+- `edges` table schema in Supabase (`mode` already allows `'bus'`).
+- Multi-modal Dijkstra engine in `graph.py`.
+
+---
+
+## Idea 8 — Offline PWA Graph Cache & Timetable Fallback
+
+*Captured 2026-09-26. Commuters lose connectivity underground or in remote stations.*
+
+### The idea
+Allow the web app to function as a Progressive Web App (PWA) with full routing capability even when offline, caching station graph data locally.
+
+### Implementation
+1. Next.js PWA service worker caching static assets and `/nodes` API payload.
+2. Client-side lightweight routing fallback (using in-browser Dijkstra on cached nodes/edges) when `navigator.onLine == false` or backend 502/network error occurs.
+3. Show route suggestions marked "Offline estimate (no live train board)".
+
+### Builds on
+- Static graph nodes and edges topology.
+- Frontend Next.js client architecture.
+
