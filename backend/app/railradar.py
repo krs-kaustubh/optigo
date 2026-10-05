@@ -8,14 +8,18 @@ trains on other branches, wrong-direction trains, long-distance expresses) is
 filtered out using the corridor model below.
 """
 
+import json
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
+IST = timezone(timedelta(hours=5, minutes=30))
 
 RAILRADAR_BASE = "https://api.railradar.in/v1"
 RAILRADAR_KEY = os.environ.get("RAILRADAR_API_KEY", "")
@@ -190,6 +194,11 @@ def first_train_leg(route_result: dict):
 # --------------------------------------------------------------------------
 
 _BOARD_CACHE: dict = {}  # station_code -> (monotonic_ts, board_json)
+_CALL_TIMESTAMPS: list = []  # monotonic timestamps of live calls within 60s
+_429_CACHE: dict = {}  # station_code -> expiry monotonic timestamp
+LAST_QUOTA_REMAINING_MONTH = None
+
+DISK_CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "railradar"
 
 
 def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool = True):
@@ -197,15 +206,33 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
 
     Cached per station for BOARD_CACHE_TTL_SECONDS so that annotating the
     three /compare candidates costs one API call, not three.
+    Falls back to disk cache to survive server reloads in dev.
     """
+    if not RAILRADAR_KEY:
+        raise RuntimeError("RAILRADAR_API_KEY is not set")
+
     now = time.monotonic()
     if use_cache:
         hit = _BOARD_CACHE.get(code)
         if hit and now - hit[0] < BOARD_CACHE_TTL_SECONDS:
             return hit[1]
+        try:
+            cache_file = DISK_CACHE_DIR / f"{code}.json"
+            if cache_file.exists() and time.time() - cache_file.stat().st_mtime < BOARD_CACHE_TTL_SECONDS:
+                disk_data = json.loads(cache_file.read_text())
+                _BOARD_CACHE[code] = (now, disk_data)
+                return disk_data
+        except Exception:
+            pass
 
-    if not RAILRADAR_KEY:
-        raise RuntimeError("RAILRADAR_API_KEY is not set")
+    if code in _429_CACHE and now < _429_CACHE[code]:
+        raise RuntimeError(f"Rate limited upstream on station {code} (429 cached)")
+
+    # Client-side 10 calls/min rate window
+    cutoff = now - 60.0
+    _CALL_TIMESTAMPS[:] = [t for t in _CALL_TIMESTAMPS if t > cutoff]
+    if len(_CALL_TIMESTAMPS) >= 10:
+        raise RuntimeError("Client rate limit reached (max 10 calls/minute)")
 
     resp = requests.get(
         f"{RAILRADAR_BASE}/stations/{code}/live",
@@ -213,14 +240,42 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
         headers={"Authorization": f"Bearer {RAILRADAR_KEY}"},
         timeout=REQUEST_TIMEOUT_SECONDS,
     )
+    _CALL_TIMESTAMPS.append(now)
+
+    global LAST_QUOTA_REMAINING_MONTH
+    rem = resp.headers.get("x-ratelimit-remaining-month")
+    if isinstance(rem, (str, int)):
+        try:
+            LAST_QUOTA_REMAINING_MONTH = int(rem)
+        except ValueError:
+            pass
+
+    if resp.status_code == 429:
+        _429_CACHE[code] = now + 60.0
+
     resp.raise_for_status()
     data = resp.json()
     _BOARD_CACHE[code] = (now, data)
+
+    try:
+        DISK_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (DISK_CACHE_DIR / f"{code}.json").write_text(json.dumps(data))
+    except Exception:
+        pass
+
     return data
 
 
 def clear_board_cache():
     _BOARD_CACHE.clear()
+    _CALL_TIMESTAMPS.clear()
+    _429_CACHE.clear()
+    if DISK_CACHE_DIR.exists():
+        for f in DISK_CACHE_DIR.glob("*.json"):
+            try:
+                f.unlink()
+            except Exception:
+                pass
 
 
 # --------------------------------------------------------------------------
@@ -231,14 +286,17 @@ def _parse_iso(value):
     if not value:
         return None
     try:
-        return datetime.fromisoformat(value)
+        dt = datetime.fromisoformat(value)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=IST)
+        return dt
     except (TypeError, ValueError):
         return None
 
 
 def _departure_datetime(stop: dict, live: dict, board_time: datetime | None):
     """Best available departure time for sorting: RailRadar's expected time,
-    else the scheduled HH:MM placed on the board's date (with midnight wrap)."""
+    else the scheduled HH:MM placed on the board's date (with symmetric midnight wrap)."""
     expected = _parse_iso(live.get("expectedDepartureTime"))
     if expected:
         return expected
@@ -249,12 +307,16 @@ def _departure_datetime(stop: dict, live: dict, board_time: datetime | None):
         h, m = (int(x) for x in hhmm.split(":")[:2])
     except ValueError:
         return None
+    if board_time.tzinfo is None:
+        board_time = board_time.replace(tzinfo=IST)
     dt = board_time.replace(hour=h, minute=m, second=0, microsecond=0)
     delay = live.get("delayMinutes")
     if isinstance(delay, (int, float)):
         dt += timedelta(minutes=delay)
     if dt < board_time - timedelta(hours=12):
         dt += timedelta(days=1)
+    elif dt > board_time + timedelta(hours=12):
+        dt -= timedelta(days=1)
     return dt
 
 
@@ -263,6 +325,15 @@ def _train_entry(item: dict, corridor: str, board_time):
     delay = live.get("delayMinutes")
     dest = train.get("destination", "")
     when = _departure_datetime(stop, live, board_time)
+
+    live_type = live.get("type", "scheduled")
+    status = live_type
+    if board_time and when:
+        if live_type == "departed":
+            status = "departed"
+        elif live_type != "at-station" and when < board_time - timedelta(minutes=1):
+            status = "departed"
+
     return {
         "train_number": train.get("number"),
         "route_name": train.get("name", ""),
@@ -272,7 +343,7 @@ def _train_entry(item: dict, corridor: str, board_time):
         "departure_time": stop.get("departure"),
         "expected_departure": when.isoformat() if when else None,
         "platform": stop.get("platform"),
-        "status": live.get("type", "scheduled"),
+        "status": status,
         "delay_minutes": delay if isinstance(delay, (int, float)) else None,
         "_sort": when,
     }
@@ -281,12 +352,15 @@ def _train_entry(item: dict, corridor: str, board_time):
 def select_relevant_trains(board: dict, boarding_code: str, alighting_code: str, limit: int):
     """Filter a raw RailRadar board down to trains that serve boarding ->
     alighting, ordered by departure time. Returns (departed, upcoming, stats)."""
-    raw = board.get("data", {}).get("trains", []) if isinstance(board, dict) else []
+    data_dict = board.get("data", {}) if isinstance(board, dict) else {}
+    raw = data_dict.get("trains", []) if isinstance(data_dict, dict) else []
     board_time = _parse_iso((board.get("meta") or {}).get("timestamp")) if isinstance(board, dict) else None
 
     departed, upcoming = [], []
     skipped = {"not_suburban": 0, "not_serving_route": 0}
     for item in raw:
+        if not isinstance(item, dict):
+            continue
         train = item.get("train", {})
         if train.get("type") not in SUBURBAN_TRAIN_TYPES:
             skipped["not_suburban"] += 1
@@ -299,8 +373,8 @@ def select_relevant_trains(board: dict, boarding_code: str, alighting_code: str,
         entry = _train_entry(item, corridor, board_time)
         (departed if entry["status"] == "departed" else upcoming).append(entry)
 
-    far_future = datetime.max.replace(tzinfo=board_time.tzinfo) if board_time else None
-    key = lambda e: e["_sort"] or far_future or datetime.max  # noqa: E731
+    far_future = datetime.max.replace(tzinfo=board_time.tzinfo if board_time else IST)
+    key = lambda e: e["_sort"] or far_future
     departed.sort(key=key)
     upcoming.sort(key=key)
 
@@ -326,7 +400,7 @@ def annotate_route_with_live_status(route_result: dict, limit: int = 5):
     `live_status.applicable` is False when the route has no train leg, so the
     UI can show "not applicable" instead of "no data". `live_status.reason`
     is one of: ok, no_relevant_trains, no_train_leg, station_not_in_railradar,
-    api_key_missing, fetch_failed.
+    api_key_missing, fetch_failed, parse_failed.
     """
     def finish(reason, applicable, **extra):
         route_result.setdefault("live_trains", [])
@@ -355,7 +429,14 @@ def annotate_route_with_live_status(route_result: dict, limit: int = 5):
     except Exception as exc:  # network, HTTP, JSON
         return finish("fetch_failed", applicable=True, error=type(exc).__name__, **info)
 
-    selected, stats = select_relevant_trains(board, b_code, a_code, limit)
+    try:
+        selected, stats = select_relevant_trains(board, b_code, a_code, limit)
+    except Exception as exc:
+        return finish("parse_failed", applicable=True, error=type(exc).__name__, **info)
+
+    if LAST_QUOTA_REMAINING_MONTH is not None:
+        stats["quota_remaining"] = LAST_QUOTA_REMAINING_MONTH
+
     route_result["live_trains"] = selected
     reason = "ok" if selected else "no_relevant_trains"
     return finish(reason, applicable=True, **info, **stats)

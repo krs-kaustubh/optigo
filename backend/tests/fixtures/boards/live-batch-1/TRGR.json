@@ -1,0 +1,562 @@
+{
+  "code": "TRGR",
+  "hours": 4,
+  "requested_at": "2026-10-05T17:43:00+05:30",
+  "status": 200,
+  "headers": {
+    "date": "Mon, 05 Oct 2026 12:13:00 GMT",
+    "content-type": "application/json",
+    "content-length": "923",
+    "connection": "keep-alive",
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "*",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "cache-control": "must-revalidate, no-store",
+    "cdn-cache-control": "must-revalidate, no-store",
+    "content-encoding": "gzip",
+    "vary": "Origin, Accept-Encoding",
+    "via": "1.1 Caddy",
+    "x-ratelimit-limit-min": "10",
+    "x-ratelimit-limit-month": "1000",
+    "x-ratelimit-remaining-min": "9",
+    "x-ratelimit-remaining-month": "827",
+    "accept-ranges": "bytes",
+    "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "cf-cache-status": "BYPASS",
+    "speculation-rules": "\"/cdn-cgi/speculation\"",
+    "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ogNJZjVCYr%2FNRSuilqaP6A8fkWx8KAztNLSxYAX4wIpBktQ7Y%2FcxBV9SAnaP7aJW61Lt4Bzbo9cSasucWjfreoZyaNE5TmhVpdhlRCJxAcZoVY5yIHXhNEFUXVedAxlezuDq\"}]}",
+    "server": "cloudflare",
+    "cf-ray": "a45c56800a3017df-BOM"
+  },
+  "body": {
+    "success": true,
+    "data": {
+      "station": {
+        "code": "TRGR",
+        "name": "Targhar",
+        "city": "Navi Mumbai",
+        "elevation_m": null,
+        "lat": 18.98993,
+        "lng": 73.03429
+      },
+      "window": {
+        "from": "15:43",
+        "to": "21:43",
+        "hoursBack": 2,
+        "hoursAhead": 4
+      },
+      "trains": [
+        {
+          "train": {
+            "number": "99718",
+            "name": "Uran - Belapur Cbd Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "BEPR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "17:38",
+            "departure": "17:38",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:43:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:43:00+05:30",
+            "delayMinutes": 5
+          }
+        },
+        {
+          "train": {
+            "number": "99615",
+            "name": "Nerul - Uran Local",
+            "type": "EMU",
+            "source": "NEU",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 3,
+            "arrival": "17:40",
+            "departure": "17:40",
+            "day": 1,
+            "distance": 5.6,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:43:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:43:00+05:30",
+            "delayMinutes": 3
+          }
+        },
+        {
+          "train": {
+            "number": "99618",
+            "name": "Uran - Nerul Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "NEU",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "18:23",
+            "departure": "18:23",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:23:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:23:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99720",
+            "name": "Uran - Belapur Cbd Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "BEPR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "18:58",
+            "departure": "18:58",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:58:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:58:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99619",
+            "name": "Nerul - Uran Local",
+            "type": "EMU",
+            "source": "NEU",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 3,
+            "arrival": "19:10",
+            "departure": "19:10",
+            "day": 1,
+            "distance": 5.6,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:10:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:10:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99621",
+            "name": "Nerul - Uran Local",
+            "type": "EMU",
+            "source": "NEU",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 3,
+            "arrival": "20:10",
+            "departure": "20:10",
+            "day": 1,
+            "distance": 5.6,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:10:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:10:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99622",
+            "name": "Uran - Nerul Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "NEU",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "20:28",
+            "departure": "20:28",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:28:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:28:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99723",
+            "name": "Belapur Cbd - Uran Local",
+            "type": "EMU",
+            "source": "BEPR",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 2,
+            "arrival": "20:54",
+            "departure": "20:54",
+            "day": 1,
+            "distance": 4.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:54:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:54:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99617",
+            "name": "Nerul - Uran Local",
+            "type": "EMU",
+            "source": "NEU",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 3,
+            "arrival": "18:10",
+            "departure": "18:10",
+            "day": 1,
+            "distance": 5.6,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:10:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:10:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99719",
+            "name": "Belapur Cbd - Uran Local",
+            "type": "EMU",
+            "source": "BEPR",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 2,
+            "arrival": "18:39",
+            "departure": "18:39",
+            "day": 1,
+            "distance": 4.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:39:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:39:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99620",
+            "name": "Uran - Nerul Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "NEU",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "19:28",
+            "departure": "19:28",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:28:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:28:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99721",
+            "name": "Belapur Cbd - Uran Local",
+            "type": "EMU",
+            "source": "BEPR",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 2,
+            "arrival": "19:39",
+            "departure": "19:39",
+            "day": 1,
+            "distance": 4.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:39:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:39:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99722",
+            "name": "Uran - Belapur Cbd Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "BEPR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "19:58",
+            "departure": "19:58",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:58:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:58:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99724",
+            "name": "Uran - Belapur Cbd Local",
+            "type": "EMU",
+            "source": "URAN",
+            "destination": "BEPR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 8,
+            "arrival": "21:13",
+            "departure": "21:13",
+            "day": 1,
+            "distance": 17.9,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:13:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:13:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99623",
+            "name": "Nerul - Uran Local",
+            "type": "EMU",
+            "source": "NEU",
+            "destination": "URAN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 3,
+            "arrival": "21:40",
+            "departure": "21:40",
+            "day": 1,
+            "distance": 5.6,
+            "isHalt": true,
+            "platform": null
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:40:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:40:00+05:30"
+          }
+        }
+      ],
+      "count": 15
+    },
+    "meta": {
+      "timestamp": "2026-10-05T17:43:00+05:30",
+      "traceId": "d42ad311-9dc1-47d2-af19-faf70932956d",
+      "source": "hybrid",
+      "executionTime": 16
+    }
+  }
+}
