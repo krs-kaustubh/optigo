@@ -175,8 +175,8 @@ class AnnotateTests(unittest.TestCase):
 
     def test_panvel_to_vashi_only_mumbai_bound_departures(self):
         r = rr.annotate_route_with_live_status(self.harbour("Panvel", "Vashi"), limit=3)
-        # last 2 departed by time, then first 3 upcoming by time
-        self.assertEqual(numbers(r), ["98176", "98178", "98180", "98182", "98915"])
+        # last 2 departed by time (98178 at 18:06, 98180 at 18:14 on 18:18:51 board), then first 3 upcoming (18:18, 18:33, 18:37)
+        self.assertEqual(numbers(r), ["98178", "98180", "98182", "98915", "98184"])
         self.assertEqual(r["live_status"]["reason"], "ok")
         self.assertEqual(r["live_status"]["boarding_code"], "PNVL")
         self.assertEqual(r["live_status"]["alighting_code"], "VSH")
@@ -248,8 +248,8 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(set(t), {"train_number", "route_name", "towards", "destination_code", "line",
                                   "departure_time", "expected_departure", "platform", "status",
                                   "delay_minutes"})
-        self.assertEqual(t["departure_time"], "18:14")
-        self.assertEqual(t["expected_departure"], "2026-09-23T18:14:00+05:30")
+        self.assertEqual(t["departure_time"], "18:18")
+        self.assertEqual(t["expected_departure"], "2026-09-23T18:18:00+05:30")
         self.assertIsNone(t["delay_minutes"])  # scheduled trains report null, not 0
 
     def test_sorting_uses_expected_time_over_board_order(self):
@@ -281,6 +281,16 @@ class CacheTests(unittest.TestCase):
         with mock.patch.object(rr, "RAILRADAR_KEY", ""):
             with self.assertRaises(RuntimeError):
                 rr.get_station_live_board("PNVL")
+
+    def test_different_hours_cached_separately(self):
+        resp = mock.Mock(status_code=200)
+        resp.json.return_value = PNVL_BOARD
+        with mock.patch.object(rr.requests, "get", return_value=resp) as get:
+            rr.get_station_live_board("PNVL", hours=2)
+            rr.get_station_live_board("PNVL", hours=4)
+            rr.get_station_live_board("PNVL", hours=2)
+        # Should call 2 times (once for hours=2, once for hours=4)
+        self.assertEqual(get.call_count, 2)
 
 
 if __name__ == "__main__":
