@@ -16,6 +16,7 @@ from app import railradar as rr
 from app import graph
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "boards" / "live-batch-1"
+GRAPH_FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "graph_network.json"
 
 
 def load_fixture_boards():
@@ -28,15 +29,29 @@ def load_fixture_boards():
     return boards
 
 
+def load_graph_fixtures():
+    data = json.loads(GRAPH_FIXTURE_PATH.read_text())
+    nodes = {int(k): v for k, v in data["nodes"].items()}
+    edges = [tuple(e) for e in data["edges"]]
+    return nodes, edges
+
+
 class PhaseBJourneysTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.boards = load_fixture_boards()
-        nodes = graph.fetch_nodes()
-        cls.name_to_id = {v["name"]: k for k, v in nodes.items()}
+        cls.fixture_nodes, cls.fixture_edges = load_graph_fixtures()
+        cls.name_to_id = {v["name"]: k for k, v in cls.fixture_nodes.items()}
 
     def setUp(self):
         rr.clear_board_cache()
+        self.node_patch = mock.patch.object(graph, "fetch_nodes", return_value=self.fixture_nodes)
+        self.edge_patch = mock.patch.object(graph, "fetch_edges", return_value=self.fixture_edges)
+        self.node_patch.start()
+        self.edge_patch.start()
+        self.addCleanup(self.node_patch.stop)
+        self.addCleanup(self.edge_patch.stop)
+
         self.patcher = mock.patch.object(
             rr, "get_station_live_board",
             side_effect=lambda code, hours=2, use_cache=True: self.boards[code]

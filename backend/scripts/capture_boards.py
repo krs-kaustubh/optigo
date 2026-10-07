@@ -90,9 +90,12 @@ def main(argv=None) -> int:
     ap.add_argument("--snapshot", help="folder name under --out (default: current time)")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--pace", type=float, default=DEFAULT_PACE_SECONDS,
-                    help="seconds between calls")
+                    help=f"seconds between calls (minimum {DEFAULT_PACE_SECONDS})")
     ap.add_argument("--dry-run", action="store_true", help="print the plan, make no calls")
     args = ap.parse_args(argv)
+
+    if args.pace < DEFAULT_PACE_SECONDS:
+        ap.error(f"--pace must be at least {DEFAULT_PACE_SECONDS} seconds")
 
     codes = [c.upper() for c in args.codes]
     if len(codes) > MAX_CODES_PER_RUN:

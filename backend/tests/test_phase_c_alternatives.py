@@ -18,6 +18,7 @@ from app import railradar as rr
 from app import graph
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "boards" / "live-batch-1"
+GRAPH_FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "graph_network.json"
 
 
 def load_fixture_boards():
@@ -30,16 +31,30 @@ def load_fixture_boards():
     return boards
 
 
+def load_graph_fixtures():
+    data = json.loads(GRAPH_FIXTURE_PATH.read_text())
+    nodes = {int(k): v for k, v in data["nodes"].items()}
+    edges = [tuple(e) for e in data["edges"]]
+    return nodes, edges
+
+
 class PhaseCAlternativesTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.boards = load_fixture_boards()
-        nodes = graph.fetch_nodes()
-        cls.name_to_id = {v["name"]: k for k, v in nodes.items()}
+        cls.fixture_nodes, cls.fixture_edges = load_graph_fixtures()
+        cls.name_to_id = {v["name"]: k for k, v in cls.fixture_nodes.items()}
         cls.client = TestClient(app)
 
     def setUp(self):
         rr.clear_board_cache()
+        self.node_patch = mock.patch.object(graph, "fetch_nodes", return_value=self.fixture_nodes)
+        self.edge_patch = mock.patch.object(graph, "fetch_edges", return_value=self.fixture_edges)
+        self.node_patch.start()
+        self.edge_patch.start()
+        self.addCleanup(self.node_patch.stop)
+        self.addCleanup(self.edge_patch.stop)
+
         self.patcher = mock.patch.object(
             rr, "get_station_live_board",
             side_effect=lambda code, hours=2, use_cache=True: self.boards[code]
@@ -116,10 +131,10 @@ class PhaseCAlternativesTests(unittest.TestCase):
 
         alts = route["live_alternatives"]
         back_alt = next((a for a in alts if a["kind"] == "back"), None)
-        if back_alt:
-            self.assertEqual(back_alt["via"], "Panvel")
-            self.assertTrue(back_alt["seat"])
-            self.assertIn("detour via Panvel", back_alt["note"])
+        self.assertIsNotNone(back_alt)
+        self.assertEqual(back_alt["via"], "Panvel")
+        self.assertTrue(back_alt["seat"])
+        self.assertIn("detour via Panvel", back_alt["note"])
 
     def test_boarding_at_origin_no_alternatives_needed(self):
         """When boarding station is already an origin (Panvel), no backing pivots are generated."""

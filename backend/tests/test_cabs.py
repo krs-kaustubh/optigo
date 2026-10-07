@@ -4,6 +4,7 @@ deep links, and the /cabs/estimate endpoint.
 """
 
 import unittest
+from unittest import mock
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -118,7 +119,12 @@ class CabEndpointTests(unittest.TestCase):
         self.assertGreaterEqual(len(data["estimates"]), 5)
         self.assertEqual(data["pickup"]["lat"], 19.0771)
 
-    def test_cabs_endpoint_with_station_ids(self):
+    @mock.patch("app.main.fetch_nodes")
+    def test_cabs_endpoint_with_station_ids(self, mock_fetch):
+        mock_fetch.return_value = {
+            1: {"name": "Vashi", "lat": 19.0632517, "lng": 72.9988553, "type": "rail"},
+            6: {"name": "Belapur CBD", "lat": 19.0188208, "lng": 73.038839, "type": "rail_junction"},
+        }
         # Station 1 (Vashi) -> Station 6 (Belapur CBD)
         resp = self.client.get(
             "/cabs/estimate",
@@ -132,4 +138,17 @@ class CabEndpointTests(unittest.TestCase):
 
     def test_cabs_endpoint_missing_params_422(self):
         resp = self.client.get("/cabs/estimate")
+        self.assertEqual(resp.status_code, 422)
+
+    def test_cabs_endpoint_invalid_coord_ranges_422(self):
+        # Latitude > 90 should return 422
+        resp = self.client.get(
+            "/cabs/estimate",
+            params={
+                "pickup_lat": 95.0,
+                "pickup_lng": 72.9986,
+                "dropoff_lat": 19.0185,
+                "dropoff_lng": 73.0402,
+            },
+        )
         self.assertEqual(resp.status_code, 422)

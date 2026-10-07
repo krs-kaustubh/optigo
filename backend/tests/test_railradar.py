@@ -282,6 +282,16 @@ class CacheTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 rr.get_station_live_board("PNVL")
 
+    def test_different_hours_cached_separately(self):
+        resp = mock.Mock(status_code=200)
+        resp.json.return_value = PNVL_BOARD
+        with mock.patch.object(rr.requests, "get", return_value=resp) as get:
+            rr.get_station_live_board("PNVL", hours=2)
+            rr.get_station_live_board("PNVL", hours=4)
+            rr.get_station_live_board("PNVL", hours=2)
+        # Should call 2 times (once for hours=2, once for hours=4)
+        self.assertEqual(get.call_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
