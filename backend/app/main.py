@@ -86,10 +86,10 @@ def compare(
 
 @app.get("/cabs/estimate")
 def get_cabs_estimate(
-    pickup_lat: Optional[float] = Query(None),
-    pickup_lng: Optional[float] = Query(None),
-    dropoff_lat: Optional[float] = Query(None),
-    dropoff_lng: Optional[float] = Query(None),
+    pickup_lat: Optional[float] = Query(None, ge=-90, le=90),
+    pickup_lng: Optional[float] = Query(None, ge=-180, le=180),
+    dropoff_lat: Optional[float] = Query(None, ge=-90, le=90),
+    dropoff_lng: Optional[float] = Query(None, ge=-180, le=180),
     source_station_id: Optional[int] = Query(None),
     target_station_id: Optional[int] = Query(None),
 ):

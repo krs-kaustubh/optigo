@@ -1,7 +1,7 @@
 # Optigo — Work Log
 
 Chronological record of what was changed, why, and how it was verified.
-Newest entries at the bottom. Kept out of git (see .gitignore).
+Newest entries at the bottom. Tracked in git as the project work log.
 
 ---
 

@@ -193,9 +193,12 @@ def first_train_leg(route_result: dict):
 # RailRadar client
 # --------------------------------------------------------------------------
 
-_BOARD_CACHE: dict = {}  # station_code -> (monotonic_ts, board_json)
+import threading
+
+_BOARD_CACHE: dict = {}  # (station_code, hours) -> (monotonic_ts, board_json)
 _CALL_TIMESTAMPS: list = []  # monotonic timestamps of live calls within 60s
 _429_CACHE: dict = {}  # station_code -> expiry monotonic timestamp
+_RATE_LIMIT_LOCK = threading.Lock()
 LAST_QUOTA_REMAINING_MONTH = None
 
 DISK_CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "railradar"
@@ -204,7 +207,7 @@ DISK_CACHE_DIR = Path(__file__).resolve().parent.parent / ".cache" / "railradar"
 def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool = True):
     """Fetch the live arrival/departure board for a station.
 
-    Cached per station for BOARD_CACHE_TTL_SECONDS so that annotating the
+    Cached per (station, hours) for BOARD_CACHE_TTL_SECONDS so that annotating the
     three /compare candidates costs one API call, not three.
     Falls back to disk cache to survive server reloads in dev.
     """
@@ -212,15 +215,16 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
         raise RuntimeError("RAILRADAR_API_KEY is not set")
 
     now = time.monotonic()
+    cache_key = (code, hours)
     if use_cache:
-        hit = _BOARD_CACHE.get(code)
+        hit = _BOARD_CACHE.get(cache_key)
         if hit and now - hit[0] < BOARD_CACHE_TTL_SECONDS:
             return hit[1]
         try:
-            cache_file = DISK_CACHE_DIR / f"{code}.json"
+            cache_file = DISK_CACHE_DIR / f"{code}_{hours}h.json"
             if cache_file.exists() and time.time() - cache_file.stat().st_mtime < BOARD_CACHE_TTL_SECONDS:
                 disk_data = json.loads(cache_file.read_text())
-                _BOARD_CACHE[code] = (now, disk_data)
+                _BOARD_CACHE[cache_key] = (now, disk_data)
                 return disk_data
         except Exception:
             pass
@@ -228,11 +232,13 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
     if code in _429_CACHE and now < _429_CACHE[code]:
         raise RuntimeError(f"Rate limited upstream on station {code} (429 cached)")
 
-    # Client-side 10 calls/min rate window
-    cutoff = now - 60.0
-    _CALL_TIMESTAMPS[:] = [t for t in _CALL_TIMESTAMPS if t > cutoff]
-    if len(_CALL_TIMESTAMPS) >= 10:
-        raise RuntimeError("Client rate limit reached (max 10 calls/minute)")
+    # Client-side 10 calls/min rate window synchronized under lock
+    with _RATE_LIMIT_LOCK:
+        cutoff = now - 60.0
+        _CALL_TIMESTAMPS[:] = [t for t in _CALL_TIMESTAMPS if t > cutoff]
+        if len(_CALL_TIMESTAMPS) >= 10:
+            raise RuntimeError("Client rate limit reached (max 10 calls/minute)")
+        _CALL_TIMESTAMPS.append(now)
 
     resp = requests.get(
         f"{RAILRADAR_BASE}/stations/{code}/live",
@@ -240,7 +246,6 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
         headers={"Authorization": f"Bearer {RAILRADAR_KEY}"},
         timeout=REQUEST_TIMEOUT_SECONDS,
     )
-    _CALL_TIMESTAMPS.append(now)
 
     global LAST_QUOTA_REMAINING_MONTH
     rem = resp.headers.get("x-ratelimit-remaining-month")
@@ -255,11 +260,11 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
 
     resp.raise_for_status()
     data = resp.json()
-    _BOARD_CACHE[code] = (now, data)
+    _BOARD_CACHE[cache_key] = (now, data)
 
     try:
         DISK_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        (DISK_CACHE_DIR / f"{code}.json").write_text(json.dumps(data))
+        (DISK_CACHE_DIR / f"{code}_{hours}h.json").write_text(json.dumps(data))
     except Exception:
         pass
 
@@ -268,7 +273,8 @@ def get_station_live_board(code: str, hours: int = BOARD_HOURS, use_cache: bool 
 
 def clear_board_cache():
     _BOARD_CACHE.clear()
-    _CALL_TIMESTAMPS.clear()
+    with _RATE_LIMIT_LOCK:
+        _CALL_TIMESTAMPS.clear()
     _429_CACHE.clear()
     if DISK_CACHE_DIR.exists():
         for f in DISK_CACHE_DIR.glob("*.json"):

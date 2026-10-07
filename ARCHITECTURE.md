@@ -15,11 +15,11 @@ backend/
 │   ├── alternatives.py   Shared alternatives engine: backing (Idea 1) & forward switching (Idea 2)
 │   └── cabs.py           Cab provider layer: calibrated fares & deep links (Uber, Ola, Rapido, Auto)
 ├── tests/
-│   ├── test_railradar.py              28 tests
+│   ├── test_railradar.py              29 tests
 │   ├── test_routing_errors.py         20 tests (fixture graph, Supabase mocked)
 │   ├── test_phase_b_railradar.py      12 tests (all 8 corridor journeys + edge cases)
 │   ├── test_phase_c_alternatives.py    8 tests (backing, switching, cap, filters, endpoint)
-│   └── test_cabs.py                   10 tests (fare models, road distance, deep links, endpoint)
+│   └── test_cabs.py                   11 tests (fare models, road distance, deep links, endpoint)
 ├── requirements.txt       the pin list (root requirements.txt forwards here)
 └── .env                   (gitignored — never committed)
 frontend/                  Next.js 16 — see "Frontend" below
@@ -191,7 +191,7 @@ Implements the aggregator comparison pattern (industry standard for Google Maps 
   - Rapido: `rapido://ride?pickup_lat=...&drop_lat=...`
 - **Output:** Returns all ride tiers sorted by lowest fare first, tagged `estimated: true` with disclaimer.
 
-**Tests:** `backend/tests/test_railradar.py` (28), `backend/tests/test_routing_errors.py` (20), `backend/tests/test_phase_b_railradar.py` (12), `backend/tests/test_phase_c_alternatives.py` (8), `backend/tests/test_cabs.py` (10). **78 tests total**, stdlib `unittest`, 100% offline fixture-backed. Run from `backend/`: `python -m unittest discover -s tests -v`.
+**Tests:** `backend/tests/test_railradar.py` (29), `backend/tests/test_routing_errors.py` (20), `backend/tests/test_phase_b_railradar.py` (12), `backend/tests/test_phase_c_alternatives.py` (8), `backend/tests/test_cabs.py` (11). **80 tests total**, stdlib `unittest`, 100% offline fixture-backed (runtime ~0.15s). Run from `backend/`: `python -m unittest discover -s tests -v`.
 
 ## CORS
 Hardcoded in `main.py`:

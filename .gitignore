@@ -10,3 +10,5 @@ REPO.md
 venv/
 __pycache__/
 handoff.md
+*.pdf
+pr-1.pdf

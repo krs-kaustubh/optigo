@@ -5,8 +5,8 @@
 A multimodal journey-planning engine for **Navi Mumbai** that finds optimal routes across train, metro, and walking — ranked by time, distance, or fare — and shows the live suburban-train board for the leg you'd actually board. Built as a PBL-Mini Project (KJSIT, SY Engineering).
 
 > [!NOTE]
-> **Status (2026-09-25):** backend audited, fixed and tested (48 tests); live train status implemented and filtered server-side. Frontend is the `create-next-app` scaffold, being built by the frontend owner against the API contract below (a throwaway reference UI lives on branch `frontend-reference`).
-> Demo deadline: **Oct 9, 2026** (final).
+> **Status (2026-10-05):** Backend complete through Phases B, C, and E (80 tests passing, 100% offline fixture-backed). Includes live station board filters, backing (Idea 1) & forward switching (Idea 2) seat alternatives (`prefer_seat=true`), and multimodal cab/auto fare estimates with deep links (`/cabs/estimate`). Frontend owner building against API contract.
+> Demo deadline: **Oct 16, 2026**.
 
 ---
 
@@ -80,20 +80,28 @@ optigo/
 │   ├── app/
 │   │   ├── main.py            FastAPI routes, CORS, error → HTTP status mapping
 │   │   ├── graph.py           Supabase client, graph build, Dijkstra, fare slabs, RoutingError types
-│   │   └── railradar.py       RailRadar live board, corridor model, direction filter
+│   │   ├── railradar.py       RailRadar live board, corridor model, direction filter
+│   │   ├── alternatives.py    Shared alternatives engine: backing (Idea 1) & forward switching (Idea 2)
+│   │   └── cabs.py            Cab provider layer: calibrated fares & deep links (Uber, Ola, Rapido, Auto)
 │   ├── tests/
-│   │   ├── test_railradar.py        28 tests — corridor logic, filtering, sorting, cache
-│   │   └── test_routing_errors.py   20 tests — validation, error codes, /nodes, Supabase retry
+│   │   ├── fixtures/          Recorded live station boards & offline graph network fixtures
+│   │   ├── test_railradar.py              29 tests — corridor logic, filtering, sorting, cache
+│   │   ├── test_routing_errors.py         20 tests — validation, error codes, /nodes, Supabase retry
+│   │   ├── test_phase_b_railradar.py      12 tests — all 8 corridor journeys + edge cases
+│   │   ├── test_phase_c_alternatives.py    8 tests — backing, switching, cap, filters, endpoint
+│   │   └── test_cabs.py                   11 tests — fare models, road distance, deep links, endpoint
 │   ├── requirements.txt       the pin list
 │   └── .env                   (gitignored) SUPABASE_URL, SUPABASE_KEY, RAILRADAR_API_KEY
 ├── frontend/                  Next.js 16 scaffold (create-next-app) — frontend owner's workspace
 ├── sql-schema/                Supabase seed SQL (DDL, nodes, edges, RPC, fixes)
 ├── requirements.txt           forwards to backend/requirements.txt
-├── future-ideas.md            design notes for features not built yet
+├── future-ideas.md            design notes for features
+├── ARCHITECTURE.md            ground truth for backend architecture (tracked)
+├── log.md                     chronological work log (tracked)
 └── README.md                  ← you are here
 ```
 
-Local-only docs (gitignored, present in the working copy): `ARCHITECTURE.md` (ground truth for how the code behaves), `plan.md` (build-day plan and phase status), `log.md` (chronological work log), `REPO.md` (access and run notes).
+Local-only docs (gitignored, present in working copy): `plan.md` (build-day plan and phase status), `REPO.md` (access and run notes), `handoff.md` (frontend handoff).
 
 ---
 
@@ -179,32 +187,52 @@ All stations, sorted by id.
 ```
 Totals are **nested** under `totals`; `real_fare` is the slab fare, `cost` the legacy column.
 
-### `GET /compare?source&target&live`
+### `GET /compare?source&target&live&prefer_seat`
 
 | Param | Type | Default | Description |
 |---|---|---|---|
 | `source` | int | 1 | Source node ID |
 | `target` | int | 5 | Target node ID |
-| `live` | bool | `false` | Attach the live train board to routes with a train leg |
+| `live` | bool | `false` | Attach live train board to routes with a train leg |
+| `prefer_seat` | bool | `false` | Enable seat alternatives (Idea 1 Backing & Idea 2 Forward Switching) |
 
 Returns **exactly 3** route objects (same shape as `/route`) each with `optimized_for` ∈ `time` · `distance` · `cost`. Two or all three may share the same path.
 
-With `live=true` each route also has:
+With `prefer_seat=true`, routes also include `live_alternatives`:
 ```json
-"live_trains": [{
-  "train_number": "98184", "route_name": "Panvel - Mumbai CSMT Local",
-  "towards": "Mumbai CSMT", "destination_code": "CSMT", "line": "harbour",
-  "departure_time": "18:37", "expected_departure": "2026-09-23T18:37:00+05:30",
-  "platform": "2", "status": "scheduled", "delay_minutes": null
-}],
-"live_status": {
-  "applicable": true, "reason": "ok",
-  "boarding_station": "Panvel", "alighting_station": "Vashi",
-  "boarding_code": "PNVL", "alighting_code": "VSH", "line": "harbour",
-  "trains_on_board": 51, "relevant_trains": 16, "board_time": "2026-09-23T18:32:59+05:30"
+"live_alternatives": [{
+  "kind": "switch", "seat": true,
+  "via": "Belapur CBD", "via_code": "BEPR",
+  "leg1": { "train_number": "98172", "departure_time": "17:44" },
+  "leg2": { "train_number": "98368", "departure_time": "17:56" },
+  "direct": { "train_number": "98172", "departure_time": "17:44" },
+  "extra_minutes": 8,
+  "note": "Switch at Belapur CBD to a train originating there — likely seat."
+}]
+```
+
+### `GET /cabs/estimate`
+Calibrated fare matrix and universal deep links for Uber, Ola, Rapido, and metered Auto Rickshaw.
+
+| Param | Type | Description |
+|---|---|---|
+| `pickup_lat`, `pickup_lng` | float | Pickup GPS coordinates (`ge=-90, le=90`, `ge=-180, le=180`) |
+| `dropoff_lat`, `dropoff_lng` | float | Dropoff GPS coordinates (`ge=-90, le=90`, `ge=-180, le=180`) |
+| `source_station_id`, `target_station_id` | int | Optional station ID shortcut (e.g. 1 for Vashi, 6 for Belapur CBD) |
+
+```json
+{
+  "pickup": { "name": "Vashi", "lat": 19.063, "lng": 72.998 },
+  "dropoff": { "name": "Belapur CBD", "lat": 19.018, "lng": 73.038 },
+  "road_distance_km": 8.43, "duration_minutes": 23,
+  "estimates": [
+    { "provider": "Rapido", "tier": "Rapido Bike", "fare_low": 121, "fare_high": 135, "deeplink": "rapido://..." },
+    { "provider": "Auto Rickshaw", "tier": "Metered Auto", "fare_low": 149, "fare_high": 173, "deeplink": "geo:..." },
+    { "provider": "Uber", "tier": "Uber Auto", "fare_low": 199, "fare_high": 229, "deeplink": "https://m.uber.com/ul/?..." },
+    { "provider": "Uber", "tier": "Uber Go", "fare_low": 228, "fare_high": 269, "deeplink": "https://m.uber.com/ul/?..." }
+  ]
 }
 ```
-`live_status.reason` ∈ `ok` · `no_relevant_trains` · `no_train_leg` (all-metro route, `applicable: false`) · `station_not_in_railradar` · `api_key_missing` · `fetch_failed`. Up to 2 recently departed + 3 upcoming trains, sorted by expected departure.
 
 ### Errors
 
