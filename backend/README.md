@@ -14,16 +14,22 @@ backend/
 │   ├── __init__.py
 │   ├── main.py           FastAPI app, CORS, route handlers, RoutingError/UpstreamError → HTTP status
 │   ├── graph.py          Supabase client, graph builder, Dijkstra, fare calc, error types
-│   └── railradar.py      RailRadar client: live station board + corridor-based relevance filter
+│   ├── railradar.py      RailRadar client: live station board + corridor-based relevance filter
+│   ├── alternatives.py   Shared alternatives engine: backing (Idea 1) & forward switching (Idea 2)
+│   └── cabs.py           Cab provider layer: calibrated fares & deep links (Uber, Ola, Rapido, Auto)
 ├── tests/
-│   ├── test_railradar.py         corridor logic, filtering, sorting, cache (no network)
-│   └── test_routing_errors.py    validation, HTTP codes, /nodes, Supabase retry (fixture graph)
+│   ├── fixtures/                 Offline graph fixture & live station board batch
+│   ├── test_railradar.py         corridor logic, filtering, sorting, window-aware cache (29 tests)
+│   ├── test_routing_errors.py    validation, HTTP codes, /nodes, Supabase retry (20 tests)
+│   ├── test_phase_b_railradar.py 8 corridor journeys, ghost trains, tz, rate limit (12 tests)
+│   ├── test_phase_c_alternatives.py backing, switching, pivot caps, filters (8 tests)
+│   └── test_cabs.py              cab fare matrix, road distance, deep links, endpoints (11 tests)
 ├── requirements.txt      the pin list (root requirements.txt forwards here)
 └── .env                  (gitignored — never committed)
 ```
 
 ### `main.py`
-Four endpoints: `/health`, `/nodes`, `/route`, `/compare`. Never touches the database directly. Two exception handlers turn `RoutingError` subclasses into 400/404 and `UpstreamError` into 502, all with a JSON body `{"detail", "error"}`. `weight` is a `Literal`, so an invalid value is a 422 from FastAPI.
+Five endpoints: `/health`, `/nodes`, `/route`, `/compare`, `/cabs/estimate`. Never touches the database directly. Two exception handlers turn `RoutingError` subclasses into 400/404 and `UpstreamError` into 502, all with a JSON body `{"detail", "error"}`. `weight` is a `Literal`, so an invalid value is a 422 from FastAPI. Coordinate ranges on `/cabs/estimate` are validated at the boundary.
 
 ### `graph.py`
 - **Supabase client** is created at import from `SUPABASE_URL` / `SUPABASE_KEY`, with a custom `httpx.Client` whose idle connections expire after 15 s. Supabase closes idle connections server-side; without this, the first request after a pause failed with `Server disconnected`.
@@ -114,7 +120,8 @@ Full reference with response shapes and the error table is in the [root README](
 | `GET /health` | `{"status": "ok"}` |
 | `GET /nodes` | all stations `[{id, name, lat, lng, type}]` |
 | `GET /route?source&target&weight` | one route `{path, edges, totals}` |
-| `GET /compare?source&target&live` | exactly 3 routes tagged `optimized_for`; with `live=true` also `live_trains` + `live_status` |
+| `GET /compare?source&target&live&prefer_seat` | exactly 3 routes tagged `optimized_for`; with `live=true` also `live_trains` + `live_status`; with `prefer_seat=true` also `live_alternatives` |
+| `GET /cabs/estimate?pickup_lat&pickup_lng...` | side-by-side fare matrix & deep links (Uber, Ola, Rapido, Auto) |
 
 Errors: 404 `UnknownNode` / `NoPath`, 400 `SameNode`, 422 validation, 502 `UpstreamError`.
 

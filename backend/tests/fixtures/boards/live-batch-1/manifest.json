@@ -1,0 +1,88 @@
+{
+  "captures": [
+    {
+      "code": "PNVL",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:13+05:30",
+      "status": 200,
+      "trains": 97
+    },
+    {
+      "code": "KNDS",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:20+05:30",
+      "status": 200,
+      "trains": 82
+    },
+    {
+      "code": "KHAG",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:27+05:30",
+      "status": 200,
+      "trains": 82
+    },
+    {
+      "code": "BEPR",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:33+05:30",
+      "status": 200,
+      "trains": 109
+    },
+    {
+      "code": "NEU",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:40+05:30",
+      "status": 200,
+      "trains": 130
+    },
+    {
+      "code": "VSH",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:47+05:30",
+      "status": 200,
+      "trains": 132
+    },
+    {
+      "code": "SWDK",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:42:53+05:30",
+      "status": 200,
+      "trains": 111
+    },
+    {
+      "code": "TRGR",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:43:00+05:30",
+      "status": 200,
+      "trains": 15
+    },
+    {
+      "code": "BMDR",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:43:07+05:30",
+      "status": 200,
+      "trains": 15
+    },
+    {
+      "code": "KARP",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:43:14+05:30",
+      "status": 200,
+      "trains": 14
+    },
+    {
+      "code": "JNJ",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:43:25+05:30",
+      "status": 200,
+      "trains": 124
+    },
+    {
+      "code": "SNCR",
+      "hours": 4,
+      "requested_at": "2026-10-05T17:43:32+05:30",
+      "status": 200,
+      "trains": 113
+    }
+  ]
+}

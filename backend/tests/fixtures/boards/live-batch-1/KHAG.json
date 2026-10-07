@@ -1,0 +1,2794 @@
+{
+  "code": "KHAG",
+  "hours": 4,
+  "requested_at": "2026-10-05T17:42:27+05:30",
+  "status": 200,
+  "headers": {
+    "date": "Mon, 05 Oct 2026 12:12:27 GMT",
+    "content-type": "application/json",
+    "content-length": "2585",
+    "connection": "keep-alive",
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "*",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "cache-control": "must-revalidate, no-store",
+    "cdn-cache-control": "must-revalidate, no-store",
+    "content-encoding": "gzip",
+    "vary": "Origin, Accept-Encoding",
+    "via": "1.1 Caddy",
+    "x-ratelimit-limit-min": "10",
+    "x-ratelimit-limit-month": "1000",
+    "x-ratelimit-remaining-min": "7",
+    "x-ratelimit-remaining-month": "832",
+    "accept-ranges": "bytes",
+    "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "cf-cache-status": "BYPASS",
+    "speculation-rules": "\"/cdn-cgi/speculation\"",
+    "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=dlmkfndT4Y6x28CFL8DukjT1ltfkC8a4UQo183oMdmt9nZXtgypoYhFGj%2BxzTYJlm%2BJwRN2vvupEtumvIpU%2B7%2FfE1JROyCdku1WzyOGYaMFh0JyxlcpmdBJ7oPURiISROItS\"}]}",
+    "server": "cloudflare",
+    "cf-ray": "a45c55adda863b40-BOM"
+  },
+  "body": {
+    "success": true,
+    "data": {
+      "station": {
+        "code": "KHAG",
+        "name": "Kharghar",
+        "city": "Navi Mumbai",
+        "elevation_m": 4,
+        "lat": 19.02614,
+        "lng": 73.05956
+      },
+      "window": {
+        "from": "15:42",
+        "to": "21:42",
+        "hoursBack": 2,
+        "hoursAhead": 4
+      },
+      "trains": [
+        {
+          "train": {
+            "number": "98172",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:44",
+            "departure": "17:44",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:44:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:44:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98913",
+            "name": "Panvel - Goregoan Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "GMN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:40",
+            "departure": "17:40",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:45:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:45:00+05:30",
+            "delayMinutes": 5
+          }
+        },
+        {
+          "train": {
+            "number": "98171",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "17:44",
+            "departure": "17:44",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:46:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:46:00+05:30",
+            "delayMinutes": 2
+          }
+        },
+        {
+          "train": {
+            "number": "99054",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:48",
+            "departure": "17:48",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:48:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:48:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98173",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "17:52",
+            "departure": "17:52",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:53:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:53:00+05:30",
+            "delayMinutes": 1
+          }
+        },
+        {
+          "train": {
+            "number": "98174",
+            "name": "Panvel - Vadala Road Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "VDLR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:57",
+            "departure": "17:57",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T17:57:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:57:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98175",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "18:00",
+            "departure": "18:00",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:03:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:03:00+05:30",
+            "delayMinutes": 3
+          }
+        },
+        {
+          "train": {
+            "number": "99043",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "18:04",
+            "departure": "18:04",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:09:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:09:00+05:30",
+            "delayMinutes": 5
+          }
+        },
+        {
+          "train": {
+            "number": "98177",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "18:08",
+            "departure": "18:08",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:10:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:10:00+05:30",
+            "delayMinutes": 2
+          }
+        },
+        {
+          "train": {
+            "number": "98179",
+            "name": "Mumbai CSMT - Panvel Special",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "18:17",
+            "departure": "18:17",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:19:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:19:00+05:30",
+            "delayMinutes": 2
+          }
+        },
+        {
+          "train": {
+            "number": "98181",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "18:21",
+            "departure": "18:21",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:23:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:23:00+05:30",
+            "delayMinutes": 2
+          }
+        },
+        {
+          "train": {
+            "number": "98183",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "18:29",
+            "departure": "18:29",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:32:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:32:00+05:30",
+            "delayMinutes": 3
+          }
+        },
+        {
+          "train": {
+            "number": "99045",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "18:35",
+            "departure": "18:35",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:35:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:35:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98185",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "18:42",
+            "departure": "18:42",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:43:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:43:00+05:30",
+            "delayMinutes": 1
+          }
+        },
+        {
+          "train": {
+            "number": "99047",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "18:50",
+            "departure": "18:50",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:50:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:50:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98186",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:52",
+            "departure": "18:52",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:52:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:52:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98190",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:08",
+            "departure": "19:08",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:08:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:08:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99060",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:12",
+            "departure": "19:12",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:12:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:12:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98195",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:23",
+            "departure": "19:23",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:23:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:23:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98197",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "19:32",
+            "departure": "19:32",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:32:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:32:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99064",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:42",
+            "departure": "19:42",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:42:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:42:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98201",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:43",
+            "departure": "19:43",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:43:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:43:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98205",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "20:06",
+            "departure": "20:06",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:06:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:06:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98207",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "20:14",
+            "departure": "20:14",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:14:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:14:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98204",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:18",
+            "departure": "20:18",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:18:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:18:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99053",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "20:30",
+            "departure": "20:30",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:30:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:30:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98208",
+            "name": "Panvel - Vadala Road Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "VDLR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:38",
+            "departure": "20:38",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:38:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:38:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98215",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "20:50",
+            "departure": "20:50",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:50:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:50:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "99068",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:02",
+            "departure": "21:02",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:02:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:02:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98219",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "21:06",
+            "departure": "21:06",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:06:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:06:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98223",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "21:26",
+            "departure": "21:26",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "not-started",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:26:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:26:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98224",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:41",
+            "departure": "21:41",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "upcoming",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:41:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:41:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98176",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:01",
+            "departure": "18:01",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:01:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:01:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99056",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:08",
+            "departure": "18:08",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:08:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:08:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98178",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:17",
+            "departure": "18:17",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:17:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:17:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98180",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:25",
+            "departure": "18:25",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:25:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:25:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98182",
+            "name": "Panvel - Vadala Road Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "VDLR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:29",
+            "departure": "18:29",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:29:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:29:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99058",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:33",
+            "departure": "18:33",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:33:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:33:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98915",
+            "name": "Panvel - Goregoan Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "GMN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:44",
+            "departure": "18:44",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:44:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:44:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98187",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "18:46",
+            "departure": "18:46",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:46:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:46:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98184",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "18:48",
+            "departure": "18:48",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:48:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:48:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98189",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "18:54",
+            "departure": "18:54",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T18:54:00+05:30",
+            "expectedDepartureTime": "2026-10-05T18:54:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98188",
+            "name": "Panvel - Vadala Road Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "VDLR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:00",
+            "departure": "19:00",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:00:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:00:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98191",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:07",
+            "departure": "19:07",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:07:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:07:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99049",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "19:15",
+            "departure": "19:15",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:15:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:15:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98193",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:19",
+            "departure": "19:19",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:19:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:19:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98192",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:20",
+            "departure": "19:20",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:20:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:20:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99062",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:24",
+            "departure": "19:24",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:24:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:24:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98194",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:28",
+            "departure": "19:28",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:28:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:28:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98196",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:35",
+            "departure": "19:35",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:35:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:35:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98199",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:36",
+            "departure": "19:36",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:36:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:36:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98917",
+            "name": "Panvel - Goregoan Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "GMN",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:46",
+            "departure": "19:46",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:46:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:46:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98203",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "19:51",
+            "departure": "19:51",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:51:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:51:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98198",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "19:54",
+            "departure": "19:54",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:54:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:54:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99051",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "19:55",
+            "departure": "19:55",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T19:55:00+05:30",
+            "expectedDepartureTime": "2026-10-05T19:55:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98200",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:02",
+            "departure": "20:02",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:02:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:02:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98910",
+            "name": "Goregoan - Panvel Local",
+            "type": "EMU",
+            "source": "GMN",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 27,
+            "arrival": "20:02",
+            "departure": "20:02",
+            "day": 1,
+            "distance": 48.8,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:02:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:02:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98202",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:06",
+            "departure": "20:06",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:06:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:06:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98209",
+            "name": "Vadala Road - Panvel Local",
+            "type": "EMU",
+            "source": "VDLR",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 16,
+            "arrival": "20:18",
+            "departure": "20:18",
+            "day": 1,
+            "distance": 31.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:18:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:18:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98211",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "20:26",
+            "departure": "20:26",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:26:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:26:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99066",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:30",
+            "departure": "20:30",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:30:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:30:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98206",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:34",
+            "departure": "20:34",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:34:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:34:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98912",
+            "name": "Goregoan - Panvel Local",
+            "type": "EMU",
+            "source": "GMN",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 27,
+            "arrival": "20:35",
+            "departure": "20:35",
+            "day": 1,
+            "distance": 48.8,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:35:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:35:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99055",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "20:40",
+            "departure": "20:40",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:40:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:40:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98210",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:42",
+            "departure": "20:42",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:42:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:42:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98213",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "20:44",
+            "departure": "20:44",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:44:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:44:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98212",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:46",
+            "departure": "20:46",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:46:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:46:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99057",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "20:56",
+            "departure": "20:56",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:56:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:56:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98214",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "20:58",
+            "departure": "20:58",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T20:58:00+05:30",
+            "expectedDepartureTime": "2026-10-05T20:58:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98217",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "21:00",
+            "departure": "21:00",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:00:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:00:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98216",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:08",
+            "departure": "21:08",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:08:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:08:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98221",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "21:10",
+            "departure": "21:10",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:10:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:10:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98218",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:16",
+            "departure": "21:16",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:16:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:16:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98914",
+            "name": "Goregoan - Panvel Local",
+            "type": "EMU",
+            "source": "GMN",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 27,
+            "arrival": "21:18",
+            "departure": "21:18",
+            "day": 1,
+            "distance": 48.8,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:18:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:18:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98220",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:26",
+            "departure": "21:26",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:26:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:26:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99059",
+            "name": "Thane - Panvel Local",
+            "type": "EMU",
+            "source": "TNA",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 12,
+            "arrival": "21:31",
+            "departure": "21:31",
+            "day": 1,
+            "distance": 26.3,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:31:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:31:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "99070",
+            "name": "Panvel - Thane Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "TNA",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:31",
+            "departure": "21:31",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:31:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:31:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98222",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "21:37",
+            "departure": "21:37",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:37:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:37:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98225",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "21:42",
+            "departure": "21:42",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "scheduled",
+            "startDate": "2026-10-05",
+            "expectedArrivalTime": "2026-10-05T21:42:00+05:30",
+            "expectedDepartureTime": "2026-10-05T21:42:00+05:30"
+          }
+        },
+        {
+          "train": {
+            "number": "98170",
+            "name": "Panvel - Mumbai CSMT Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "CSMT",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:32",
+            "departure": "17:32",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "departed",
+            "startDate": "2026-10-05",
+            "departedAt": "2026-10-05T17:34:00+05:30",
+            "expectedArrivalTime": "2026-10-05T17:34:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:34:00+05:30",
+            "delayMinutes": 2
+          }
+        },
+        {
+          "train": {
+            "number": "98169",
+            "name": "Mumbai CSMT - Panvel Local",
+            "type": "EMU",
+            "source": "CSMT",
+            "destination": "PNVL",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 23,
+            "arrival": "17:33",
+            "departure": "17:33",
+            "day": 1,
+            "distance": 40.6,
+            "isHalt": true,
+            "platform": "1"
+          },
+          "live": {
+            "type": "departed",
+            "startDate": "2026-10-05",
+            "departedAt": "2026-10-05T17:33:00+05:30",
+            "expectedArrivalTime": "2026-10-05T17:33:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:33:00+05:30",
+            "delayMinutes": 0
+          }
+        },
+        {
+          "train": {
+            "number": "98168",
+            "name": "Panvel - Vadala Road Local",
+            "type": "EMU",
+            "source": "PNVL",
+            "destination": "VDLR",
+            "runDays": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "stop": {
+            "sequence": 4,
+            "arrival": "17:28",
+            "departure": "17:28",
+            "day": 1,
+            "distance": 8.2,
+            "isHalt": true,
+            "platform": "2"
+          },
+          "live": {
+            "type": "departed",
+            "startDate": "2026-10-05",
+            "departedAt": "2026-10-05T17:30:00+05:30",
+            "expectedArrivalTime": "2026-10-05T17:30:00+05:30",
+            "expectedDepartureTime": "2026-10-05T17:30:00+05:30",
+            "delayMinutes": 2
+          }
+        }
+      ],
+      "count": 82
+    },
+    "meta": {
+      "timestamp": "2026-10-05T17:42:27+05:30",
+      "traceId": "0c97b9fa-9191-45ae-9c83-a3c704dd9623",
+      "source": "hybrid",
+      "executionTime": 25
+    }
+  }
+}

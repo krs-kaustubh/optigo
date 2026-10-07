@@ -1,4 +1,4 @@
--- 2. Nodes — 22 stations. Point order is (lng, lat), not (lat, lng).
+-- 2. Nodes — 24 stations. Point order is (lng, lat), not (lat, lng).
 
 INSERT INTO nodes (name, location, type) VALUES
 ('Vashi',            ST_SetSRID(ST_MakePoint(72.9988553, 19.0632517), 4326), 'rail'),
@@ -23,4 +23,5 @@ INSERT INTO nodes (name, location, type) VALUES
 ('Pethpada',          ST_SetSRID(ST_MakePoint(73.0774620, 19.0640100), 4326), 'metro'),
 ('Amandoot',          ST_SetSRID(ST_MakePoint(73.0818660, 19.0737820), 4326), 'metro'),
 ('Pethali-Taloja',    ST_SetSRID(ST_MakePoint(73.0907640, 19.0746640), 4326), 'metro'),
-('Pendhar',           ST_SetSRID(ST_MakePoint(73.0981910, 19.0719003), 4326), 'metro');
+('Pendhar',           ST_SetSRID(ST_MakePoint(73.0981910, 19.0719003), 4326), 'metro'),
+('RBI',               ST_SetSRID(ST_MakePoint(73.0468000, 19.0217000), 4326), 'metro');
