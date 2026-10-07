@@ -9,13 +9,17 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+os.environ.setdefault("SUPABASE_URL", "https://example.supabase.co")
+os.environ.setdefault("SUPABASE_KEY", "test-key")
 os.environ.setdefault("RAILRADAR_API_KEY", "test-key")
 
+with mock.patch("supabase.create_client"):
+    from app.main import app
+    from app import alternatives as alt
+    from app import railradar as rr
+    from app import graph
+
 from fastapi.testclient import TestClient
-from app.main import app
-from app import alternatives as alt
-from app import railradar as rr
-from app import graph
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "boards" / "live-batch-1"
 GRAPH_FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "graph_network.json"

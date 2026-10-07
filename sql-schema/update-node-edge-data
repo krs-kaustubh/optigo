@@ -5,7 +5,16 @@ INSERT INTO nodes (name, location, type)
 SELECT 'RBI', ST_SetSRID(ST_MakePoint(73.0468000, 19.0217000), 4326), 'metro'
 WHERE NOT EXISTS (SELECT 1 FROM nodes WHERE name = 'RBI');
 
--- If duplicate RBI rows exist, retain the lowest id
+-- Repoint any edges referencing duplicate RBI rows to the canonical lowest id
+UPDATE edges
+SET from_node = (SELECT MIN(id) FROM nodes WHERE name = 'RBI')
+WHERE from_node IN (SELECT id FROM nodes WHERE name = 'RBI');
+
+UPDATE edges
+SET to_node = (SELECT MIN(id) FROM nodes WHERE name = 'RBI')
+WHERE to_node IN (SELECT id FROM nodes WHERE name = 'RBI');
+
+-- Delete duplicate RBI rows safely without foreign key violation
 DELETE FROM nodes WHERE name = 'RBI' AND id NOT IN (
   SELECT MIN(id) FROM nodes WHERE name = 'RBI'
 );

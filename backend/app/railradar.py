@@ -400,7 +400,12 @@ def select_relevant_trains(board: dict, boarding_code: str, alighting_code: str,
 # Public entry point
 # --------------------------------------------------------------------------
 
-def annotate_route_with_live_status(route_result: dict, limit: int = 5):
+def annotate_route_with_live_status(
+    route_result: dict,
+    limit: int = 5,
+    hours: int = BOARD_HOURS,
+    board: dict | None = None,
+):
     """Attach `live_trains` (list) and `live_status` (dict) to a route dict.
 
     `live_status.applicable` is False when the route has no train leg, so the
@@ -430,10 +435,11 @@ def annotate_route_with_live_status(route_result: dict, limit: int = 5):
     if not RAILRADAR_KEY:
         return finish("api_key_missing", applicable=True, **info)
 
-    try:
-        board = get_station_live_board(b_code)
-    except Exception as exc:  # network, HTTP, JSON
-        return finish("fetch_failed", applicable=True, error=type(exc).__name__, **info)
+    if board is None:
+        try:
+            board = get_station_live_board(b_code, hours=hours)
+        except Exception as exc:  # network, HTTP, JSON
+            return finish("fetch_failed", applicable=True, error=type(exc).__name__, **info)
 
     try:
         selected, stats = select_relevant_trains(board, b_code, a_code, limit)

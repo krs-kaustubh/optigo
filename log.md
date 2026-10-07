@@ -166,13 +166,13 @@ Newest entries at the bottom. Tracked in git as the project work log.
   - Validates inputs (404 on unknown station ID, 422 if coordinates/station IDs missing).
 
 ### Tests (`backend/tests/test_cabs.py`)
-- Added 10 unit tests:
+- Added 11 unit tests:
   - Haversine distance and road distance/duration estimation.
   - Fare calculations for Auto Rickshaw, Uber, Ola, Rapido.
   - Deep link format and coordinate pre-filling.
   - Aggregate sorting by lowest fare.
   - `/cabs/estimate` endpoint tests (coordinates, station IDs, 422 on missing params).
-- Full test suite: **78 tests total** (all passing cleanly in 2.9s).
+- Full test suite: **80 tests total** (all passing cleanly in 2.9s).
 
 
 

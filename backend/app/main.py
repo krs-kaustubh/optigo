@@ -77,8 +77,9 @@ def compare(
 ):
     result = compare_routes(source, target)
     if live or prefer_seat:
+        hours = 4 if prefer_seat else 2
         for route in result:
-            annotate_route_with_live_status(route, limit=3)
+            annotate_route_with_live_status(route, limit=3, hours=hours)
             if prefer_seat:
                 annotate_route_with_alternatives(route, prefer_seat=True)
     return result

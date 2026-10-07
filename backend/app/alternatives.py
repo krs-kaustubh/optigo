@@ -115,10 +115,16 @@ def _get_train_stop_time(item: dict, board_time: Optional[datetime], is_arrival:
         if hhmm and board_time:
             try:
                 h, m = (int(x) for x in hhmm.split(":")[:2])
+                if board_time.tzinfo is None:
+                    board_time = board_time.replace(tzinfo=rr.IST)
                 dt = board_time.replace(hour=h, minute=m, second=0, microsecond=0)
                 delay = live.get("delayMinutes")
                 if isinstance(delay, (int, float)):
                     dt += timedelta(minutes=delay)
+                if dt < board_time - timedelta(hours=12):
+                    dt += timedelta(days=1)
+                elif dt > board_time + timedelta(hours=12):
+                    dt -= timedelta(days=1)
                 return dt
             except ValueError:
                 pass
@@ -190,8 +196,8 @@ def compute_alternatives(
             leg1_trains, _ = rr.select_relevant_trains(b_board, b_code, p_code, limit=4)
             leg1_upcoming = [t for t in leg1_trains if t["status"] != "departed"]
 
-            # Leg 2 candidates at P: trains originating at P (train.source == P) serving P -> A
-            raw_p = p_board.get("data", {}).get("trains", []) if isinstance(p_board, dict) else []
+            data_p = p_board.get("data", {}) if isinstance(p_board, dict) else {}
+            raw_p = data_p.get("trains", []) if isinstance(data_p, dict) else []
             origin_trains = []
             for item in raw_p:
                 tr = item.get("train", {})
@@ -287,8 +293,8 @@ def compute_alternatives(
             leg1_trains, _ = rr.select_relevant_trains(b_board, b_code, p_code, limit=3)
             leg1_upcoming = [t for t in leg1_trains if t["status"] != "departed"]
 
-            # Leg 2 candidates at P: trains originating at P (source == P) serving P -> A
-            raw_p = p_board.get("data", {}).get("trains", []) if isinstance(p_board, dict) else []
+            data_p = p_board.get("data", {}) if isinstance(p_board, dict) else {}
+            raw_p = data_p.get("trains", []) if isinstance(data_p, dict) else []
             origin_trains = []
             for item in raw_p:
                 tr = item.get("train", {})
