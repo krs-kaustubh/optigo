@@ -1,6 +1,8 @@
 graphify-out/
 node_modules/
 .env
+skills-lock.json
+.agents/
 .next/
 dist/
 

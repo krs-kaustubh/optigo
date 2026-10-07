@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-primary: var(--green);
+  --color-primary-soft: var(--green-soft);
+  --color-accent: var(--orange);
+  --color-accent-soft: var(--orange-soft);
+  
+  --color-train: var(--green);
+  --color-metro: var(--orange);
+  --color-walk: var(--ink-muted);
+
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #F9FAFB;
+    --surface: #FFFFFF;
+    --surface-2: #F3F4F6;
+    --ink: #111827;
+    --ink-muted: #6B7280;
+    --line: #E5E7EB;
+    --green: #059669;
+    --green-soft: #D1FAE5;
+    --orange: #EA580C;
+    --orange-soft: #FFEDD5;
+  }
+  
+  .dark {
+    --bg: #030712;
+    --surface: #111827;
+    --surface-2: #1F2937;
+    --ink: #F9FAFB;
+    --ink-muted: #9CA3AF;
+    --line: #374151;
+    --green: #10B981;
+    --green-soft: #064E3B;
+    --orange: #F97316;
+    --orange-soft: #7C2D12;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    /* Subtle noise texture as data URI for warmth */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+    font-family: var(--font-sans);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
