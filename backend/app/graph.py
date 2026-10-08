@@ -1,6 +1,7 @@
 import os
 import httpx
 import networkx as nx
+import math
 from supabase import ClientOptions, create_client
 from dotenv import load_dotenv
 
@@ -162,27 +163,67 @@ def _route_result(G, NODES, path):
     return {"path": [NODES[n]["name"] for n in path], "edges": edges_used, "totals": total}
 
 
-def shortest_path(source: int, target: int, weight: str = "time", graph=None):
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+def _resolve_endpoint(G, NODES, endpoint_arg, custom_id, custom_name):
+    if isinstance(endpoint_arg, str) and "," in endpoint_arg:
+        try:
+            lat, lng = map(float, endpoint_arg.split(","))
+            if custom_id not in NODES:
+                NODES[custom_id] = {"name": custom_name, "lat": lat, "lng": lng, "type": "custom"}
+                G.add_node(custom_id, **NODES[custom_id])
+                
+                distances = []
+                for nid, attrs in NODES.items():
+                    if nid == custom_id or attrs.get("type") == "custom": continue
+                    d = haversine(lat, lng, attrs["lat"], attrs["lng"])
+                    distances.append((d, nid))
+                distances.sort()
+                
+                for d, nid in distances[:3]:
+                    time_mins = (d / 5.0) * 60.0
+                    attrs = dict(mode="walking", distance=d, time=time_mins, cost=0, weight=time_mins, fare_weight=0)
+                    G.add_edge(custom_id, nid, **attrs)
+                    G.add_edge(nid, custom_id, **attrs)
+            return custom_id
+        except ValueError:
+            pass
+    try:
+        return int(endpoint_arg)
+    except (ValueError, TypeError):
+        return endpoint_arg
+
+def shortest_path(source, target, weight: str = "time", graph=None):
     """One Dijkstra run on `weight`. Pass `graph=(G, NODES)` to reuse a built graph."""
     if weight not in WEIGHTS:
         raise InvalidWeight(weight)
     G, NODES = graph or build_graph(weight)
-    path = _find_path(G, source, target, weight)
+    source_id = _resolve_endpoint(G, NODES, source, "custom_source", "Origin")
+    target_id = _resolve_endpoint(G, NODES, target, "custom_target", "Destination")
+    path = _find_path(G, source_id, target_id, weight)
     return _route_result(G, NODES, path)
 
 
-def shortest_path_cost_approx(source: int, target: int, graph=None):
+def shortest_path_cost_approx(source, target, graph=None):
     """Approximate cost search: uses per-edge fare (fare_for_distance applied
     per-edge, not cumulative per-mode) as weight. Not exact — real_fare is a
     per-mode cumulative slab, not additive — but finds low-fare paths that
     time/distance optimal search can miss (e.g. routes using cheap walking
     edges or short train hops)."""
     G, NODES = graph or build_graph()
-    path = _find_path(G, source, target, "fare_weight")
+    source_id = _resolve_endpoint(G, NODES, source, "custom_source", "Origin")
+    target_id = _resolve_endpoint(G, NODES, target, "custom_target", "Destination")
+    path = _find_path(G, source_id, target_id, "fare_weight")
     return _route_result(G, NODES, path)
 
 
-def compare_routes(source: int, target: int):
+def compare_routes(source, target):
     """Three candidates tagged optimized_for = time / distance / cost.
 
     Raises RoutingError (UnknownNode, SameNode, NoPath) for bad input, and

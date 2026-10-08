@@ -56,6 +56,10 @@ Weight = Literal["time", "distance", "cost"]
 def health():
     return {"status": "ok"}
 
+@app.get("/test")
+def test_route():
+    return {"message": "hello from updated main"}
+
 
 @app.get("/nodes")
 def get_nodes():
@@ -64,7 +68,7 @@ def get_nodes():
 
 
 @app.get("/route")
-def get_route(source: int = Query(1), target: int = Query(5), weight: Weight = Query("time")):
+def get_route(source: str = Query("1"), target: str = Query("5"), weight: Weight = Query("time")):
     return shortest_path(source, target, weight)
 
 
