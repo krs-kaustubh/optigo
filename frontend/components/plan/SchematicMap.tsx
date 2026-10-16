@@ -100,7 +100,6 @@ export default function SchematicMap({ route, nodes }: { route?: DedupedRoute, n
         maxScale={4} 
         wheel={{ step: 0.1 }}
         pinch={{ step: 5 }}
-        alignmentAnimation={{ animationTime: 200 }}
       >
         <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div className="w-full h-full relative flex items-center justify-center p-2 md:p-4">

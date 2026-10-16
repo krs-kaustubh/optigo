@@ -49,7 +49,7 @@ async def upstream_error_handler(request: Request, exc: UpstreamError):
     return JSONResponse(status_code=502, content={"detail": str(exc), "error": "UpstreamError"})
 
 
-Weight = Literal["time", "distance", "cost"]
+Weight = Literal["time", "distance", "cost", "convenient"]
 
 
 @app.get("/health")
@@ -62,24 +62,54 @@ def test_route():
 
 
 @app.get("/nodes")
-def get_nodes():
-    """All stations (id, name, lat, lng, type), sorted by id."""
-    return list_nodes()
+def get_nodes(include_warm: bool = Query(False)):
+    """All stations (id, name, lat, lng, type), sorted by id.
+    Pass include_warm=true to include warm nodes and tier/kind/source/confidence metadata."""
+    return list_nodes(include_warm=include_warm)
+
+
+def _parse_endpoint_param(val: str, name: str):
+    if not isinstance(val, str):
+        val = str(val)
+    val = val.strip()
+    if "," in val:
+        parts = val.split(",")
+        if len(parts) == 2:
+            try:
+                lat, lng = float(parts[0]), float(parts[1])
+                return f"{lat},{lng}"
+            except ValueError:
+                pass
+        raise HTTPException(status_code=422, detail=f"Invalid {name} coordinates: expected 'lat,lng'")
+    try:
+        return int(val)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid {name} node id: expected integer or 'lat,lng'")
 
 
 @app.get("/route")
-def get_route(source: str = Query("1"), target: str = Query("5"), weight: Weight = Query("time")):
-    return shortest_path(source, target, weight)
+def get_route(
+    source: str = Query("1"),
+    target: str = Query("5"),
+    weight: Weight = Query("time"),
+    road: bool = Query(False),
+):
+    src = _parse_endpoint_param(source, "source")
+    tgt = _parse_endpoint_param(target, "target")
+    return shortest_path(src, tgt, weight, road=road)
 
 
 @app.get("/compare")
 def compare(
-    source: int = Query(1),
-    target: int = Query(5),
+    source: str = Query("1"),
+    target: str = Query("5"),
     live: bool = Query(False),
     prefer_seat: bool = Query(False),
+    road: bool = Query(False),
 ):
-    result = compare_routes(source, target)
+    src = _parse_endpoint_param(source, "source")
+    tgt = _parse_endpoint_param(target, "target")
+    result = compare_routes(src, tgt, road=road)
     if live or prefer_seat:
         hours = 4 if prefer_seat else 2
         for route in result:
