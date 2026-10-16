@@ -84,7 +84,7 @@ CORRIDORS = [
 ]
 
 # RailRadar `train.type` values that are suburban locals.
-SUBURBAN_TRAIN_TYPES = {"EMU"}
+SUBURBAN_TRAIN_TYPES = {"EMU", "Mumbai Suburban EMU"}
 
 # Human-readable direction labels for the destination shown on a train card.
 DESTINATION_NAMES = {
