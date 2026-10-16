@@ -1,0 +1,6 @@
+name,lat,lng,tier,kind,source,confidence,osm_id,notes
+"[EXAMPLE - REPLACE] Vashi Station Auto Stand",19.0635000,72.9991000,warm,auto_stand,example_template_replace_before_import,low,,"Example template row (Overpass timed out); replace with real OSM/survey coordinates before running SQL seed"
+"[EXAMPLE - REPLACE] Nerul Station West Bus Stop",19.0338000,73.0179000,warm,bus_stop,example_template_replace_before_import,low,,"Example template row (Overpass timed out); replace with real OSM/survey coordinates before running SQL seed"
+"[EXAMPLE - REPLACE] Belapur CBD Rickshaw Stand",19.0191000,73.0392000,warm,auto_stand,example_template_replace_before_import,low,,"Example template row (Overpass timed out); replace with real OSM/survey coordinates before running SQL seed"
+"[EXAMPLE - REPLACE] Kharghar Station Bus Stop",19.0268000,73.0598000,warm,bus_stop,example_template_replace_before_import,low,,"Example template row (Overpass timed out); replace with real OSM/survey coordinates before running SQL seed"
+"[EXAMPLE - REPLACE] Panvel Station Auto Stand",18.9915000,73.1210000,warm,auto_stand,example_template_replace_before_import,low,,"Example template row (Overpass timed out); replace with real OSM/survey coordinates before running SQL seed"

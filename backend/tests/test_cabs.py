@@ -40,7 +40,7 @@ class CabProviderTests(unittest.TestCase):
         self.assertLess(duration_min, 40)
 
     def test_auto_rickshaw_meter_fare(self):
-        # Official MMRTA fare: base ₹28 for 1.5 km, ₹18.66/km after
+        # Estimated MMRTA fare (Option 2): base ₹27 for 1.5 km, ₹18.22/km after
         estimates = cabs.AutoRickshawProvider().estimate(
             self.vashi[0], self.vashi[1], self.belapur[0], self.belapur[1]
         )
@@ -48,10 +48,12 @@ class CabProviderTests(unittest.TestCase):
         auto = estimates[0]
         self.assertEqual(auto["provider"], "Auto Rickshaw")
         self.assertEqual(auto["tier"], "Metered Auto")
-        # For ~10.3 km: 28 + (8.8 * 18.66) ~ ₹192
-        self.assertGreaterEqual(auto["fare_low"], 170)
-        self.assertLessEqual(auto["fare_high"], 230)
+        # For ~10.3 km: 27 + (8.8 * 18.22) ~ ₹187
+        self.assertGreaterEqual(auto["fare_low"], 165)
+        self.assertLessEqual(auto["fare_high"], 225)
         self.assertTrue(auto["estimated"])
+        self.assertEqual(auto["fare_source"], "estimated")
+        self.assertIn("₹27 base + ₹18.22/km", auto["note"])
 
     def test_uber_estimates_and_deeplink(self):
         estimates = cabs.UberProvider().estimate(

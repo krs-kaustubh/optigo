@@ -174,5 +174,26 @@ Newest entries at the bottom. Tracked in git as the project work log.
   - `/cabs/estimate` endpoint tests (coordinates, station IDs, 422 on missing params).
 - Full test suite: **80 tests total** (all passing cleanly in 2.9s).
 
+## 2026-10-16 — Road Edges, Warm Nodes & 4-Criteria Routing (`feat/road-edges`)
+
+### Phase B: Backwards-Compatible SQL Migration & Warm-Node Tooling (`sql-schema/`, `backend/scripts/seed_warm_nodes.py`)
+- Created transactional migration `sql-schema/migration_road_edges.sql` and rollback `sql-schema/rollback_road_edges.sql` (with CSV backup warning before deleting warm nodes).
+- Renamed `edges` to `railway_edges` and created a read-compatible SQL view `edges` (`SELECT id, from_node, to_node, mode, distance, time, cost, road_name FROM railway_edges`) so existing callers reading `edges` work untouched.
+- Extended `nodes` with `tier` (`hot|warm`), `kind` (`rail|metro|bus_depot|bus_stop|auto_stand`), `source`, `confidence`, and `osm_id`.
+- Preserved `get_nodes_with_coords()` 5-column return signature filtering `WHERE tier = 'hot'`; added `get_all_nodes_with_coords()` for opt-in callers (`road=true` / `include_warm=true`).
+- Added `road_edges` table (`from_node`, `to_node`, `distance`, `distance_source='estimated'`) storing bidirectional edges generated via $k=3$ nearest neighbours within $3.0\text{ km}$ ($\text{haversine} \times 1.30$) plus nearest-hot-node connectivity guarantee.
+- Created `sql-schema/warm_nodes.csv` template and `backend/scripts/seed_warm_nodes.py` (`--fetch-overpass` and `--generate-sql`). Noted OpenStreetMap ODbL attribution requirement.
+
+### Phase C & D: Road-Aware Routing, Leg Grouping, Pricing & Tests (`graph.py`, `cabs.py`, `main.py`, `test_road_edges.py`)
+- **`cabs.py`:** Updated `AutoRickshawProvider` to Option 2 MMRTA tariff (`AUTO_BASE_FARE_INR = 27.0` for first `1.5 km`, `AUTO_PER_KM_RATE_INR = 18.22`/km thereafter; marked reported w.e.f. 01.09.2026, official card pending), replaced "official" wording with `"estimated from published MMRTA tariff cards"`, added `metered_auto_fare()`, and added `road_km_override` support.
+- **`graph.py`:**
+  - Added named constants: `WALK_SPEED_KMH = 5.0`, `MAX_WALK_EDGE_KM = 1.0`, `MAX_TOTAL_WALK_KM = 1.5`, `MAX_WALK_CAP_ITERATIONS = 5`, `CAB_PICKUP_WAIT_MIN = 4.0`, `TRANSFER_PENALTY_MIN = 8.0`, `WARM_NODE_BOARDING_PENALTY_MIN = 5.0`, `WALK_PENALTY_MULTIPLIER = 2.0`, `CONVENIENT_K_PATHS = 10`.
+  - Default path (`road=False`, `include_warm=False`) untouched and byte-identical.
+  - Opt-in `road=True` fetches `get_all_nodes_with_coords`, `railway_edges`, and `road_edges` once per request and reuses the built graph across all 4 criteria (`time`, `distance`, `cost`, `convenient`).
+  - Implemented walking-cap post-check (`_find_path_with_walk_cap`, max 5 re-runs removing longest walking edge).
+  - Grouped consecutive road edges of the same mode into one contiguous leg, adding `CAB_PICKUP_WAIT_MIN` (`4.0 min`) once per grouped `cab` leg, pricing `cab` legs once via `metered_auto_fare(leg_dist)`, and attaching `cab_estimates` only on `cab` legs (never `walking` legs).
+- **`main.py`:** Added opt-in `include_warm: bool = Query(False)` on `/nodes` and `road: bool = Query(False)` on `/route` and `/compare`.
+- **Tests (`backend/tests/test_road_edges.py`):** Added 11 offline unit tests covering `road=False` byte-identical snapshots, `CAB_PICKUP_WAIT_MIN`, `cab_estimates` only on cab legs, 24-node production fixture verification (adjacent Harbour rail stations still take the train for `time` and `cost`), walking-cap 5-iteration limit, far/isolated warm nodes, 1.5 km boundary, and error handling. Full suite: **91 tests pass offline in ~0.2s**.
+
 
 

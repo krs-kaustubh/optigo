@@ -1,6 +1,6 @@
 # Optigo — Architecture & Backend Reference
 
-**Verified directly against source (commit `3f8b4d8d`, then re-audited on 2026-09-23 with every finding fixed), not against prior docs. This file is the ground truth; the READMEs were brought in line with it on 2026-09-23.**
+**Verified directly against source (re-audited on 2026-10-16 through Phase D of `feat/road-edges`). This file is the ground truth.**
 
 Related docs: `README.md` (overview + API reference, tracked) · `backend/README.md` · `future-ideas.md` (tracked; Ideas 1–2) · `handoff.md` (frontend handoff, gitignored) · `plan.md` (phase status) · `log.md` (work log) · `REPO.md` (access/run).
 
@@ -10,43 +10,75 @@ backend/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py           FastAPI app, CORS, route handlers, error → HTTP status handlers
-│   ├── graph.py          Supabase client (keepalive-tuned), graph builder, Dijkstra, fare calc, error types
+│   ├── graph.py          Supabase client (keepalive-tuned), graph builder, Dijkstra, road leg grouping, fare calc
 │   ├── railradar.py      RailRadar client: live station board + corridor model + relevance filter
 │   ├── alternatives.py   Shared alternatives engine: backing (Idea 1) & forward switching (Idea 2)
 │   └── cabs.py           Cab provider layer: calibrated fares & deep links (Uber, Ola, Rapido, Auto)
+├── scripts/
+│   ├── capture_boards.py Live RailRadar board capture script with quota pacing
+│   └── seed_warm_nodes.py One-shot Overpass fetcher & bidirectional road_edges SQL generator
 ├── tests/
 │   ├── test_railradar.py              29 tests
 │   ├── test_routing_errors.py         20 tests (fixture graph, Supabase mocked)
 │   ├── test_phase_b_railradar.py      12 tests (all 8 corridor journeys + edge cases)
 │   ├── test_phase_c_alternatives.py    8 tests (backing, switching, cap, filters, endpoint)
-│   └── test_cabs.py                   11 tests (fare models, road distance, deep links, endpoint)
+│   ├── test_cabs.py                   11 tests (fare models, road distance, deep links, endpoint)
+│   └── test_road_edges.py             11 tests (snapshots, road=true, leg grouping, walk cap, edge cases)
 ├── requirements.txt       the pin list (root requirements.txt forwards here)
 └── .env                   (gitignored — never committed)
-frontend/                  Next.js 16 — see "Frontend" below
+sql-schema/
+├── seed.sql                        Canonical 24-node, 26-edge base schema & data
+├── migration_road_edges.sql        Forward migration: railway_edges, road_edges, compatibility view `edges`, warm-node columns/RPC
+├── rollback_road_edges.sql         Clean transactional rollback with warm-node CSV backup warning
+├── warm_nodes.csv                  Reviewable CSV for warm nodes (source, confidence, osm_id)
+└── seed_warm_nodes_and_roads.sql   Generated SQL for warm nodes + bidirectional road_edges
+frontend/                  Next.js 16 — see "Frontend" and "For the frontend (Himesh)" below
 ```
+
+## Database Schema & Safe Migration (`sql-schema/`)
+
+1. **`nodes` table:**
+   - Original columns: `id`, `name`, `location` (`GEOMETRY(Point, 4326)`), `type`.
+   - Added in `migration_road_edges.sql`:
+     - `tier` (`'hot' | 'warm'`, default `'hot'`)
+     - `kind` (`'rail' | 'metro' | 'bus_depot' | 'bus_stop' | 'auto_stand'`, default `'rail'`)
+     - `source` (`TEXT`, default `'seed'`, e.g. `'osm_overpass'`)
+     - `confidence` (`'high' | 'medium' | 'low'`, default `'high'`)
+     - `osm_id` (`BIGINT`, nullable)
+2. **`railway_edges` table & `edges` compatibility view:**
+   - The original `edges` table is renamed to `railway_edges`.
+   - A read-compatible SQL view `CREATE OR REPLACE VIEW edges AS SELECT id, from_node, to_node, mode, distance, time, cost, road_name FROM railway_edges;` keeps existing callers (`supabase.table("edges").select("*")`) working with zero code changes.
+3. **`road_edges` table:**
+   - Columns: `id`, `from_node`, `to_node`, `distance` (km), `distance_source` (`'estimated' | 'osrm' | 'surveyed'`, default `'estimated'`), `road_name`, `UNIQUE (from_node, to_node)`.
+   - Stores bidirectional rows (`(u, v)` and `(v, u)`) explicitly, generated via $k = 3$ nearest neighbours within $3.0\text{ km}$ ($\text{haversine} \times 1.30$) plus a nearest-hot-node connectivity guarantee.
+4. **PostGIS RPCs:**
+   - `get_nodes_with_coords()`: **Unchanged 5-column return signature** `(id, name, lat, lng, type)` filtering `WHERE tier = 'hot'`. Protects default `/nodes` and `lat,lng` nearest-station lookups from seeing warm nodes.
+   - `get_all_nodes_with_coords()`: Extended RPC returning `(id, name, lat, lng, type, tier, kind, source, confidence, osm_id)`, called **only** when `include_warm=true` or `road=true`.
+5. **Data Attribution (OpenStreetMap / ODbL):**
+   - Warm node coordinates and stop names extracted from OpenStreetMap via Overpass (`source = 'osm_overpass'`) are © OpenStreetMap contributors and licensed under the Open Database License (**ODbL**). Any UI screen or exported dataset displaying warm nodes must credit *"© OpenStreetMap contributors (ODbL)"*.
 
 ## Endpoints (actual, from `main.py`)
 
-**5** endpoints: `/health`, `/nodes`, `/route`, `/compare`, `/cabs/estimate`.
+**6** endpoints: `/health`, `/test`, `/nodes`, `/route`, `/compare`, `/cabs/estimate`.
 
 ### `GET /health`
 Returns `{"status": "ok"}`.
 
-### `GET /nodes`
-All stations sorted by id: `[{"id", "name", "lat", "lng", "type"}]`. `type` is the DB label (`rail`, `metro`, `rail_junction`, `rail_metro_uran_interchange`, `rail_uran_origin`). Backed by `graph.list_nodes()` → one Supabase RPC call.
+### `GET /nodes?include_warm=false`
+- Default (`include_warm=false`): Calls `graph.list_nodes(include_warm=False)` → `fetch_nodes()` (`get_nodes_with_coords`). Returns the 24 hot stations sorted by id: `[{"id", "name", "lat", "lng", "type"}]`.
+- Opt-in (`include_warm=true`): Calls `graph.list_nodes(include_warm=True)` → `fetch_all_nodes()` (`get_all_nodes_with_coords`). Returns hot + warm nodes with `{"id", "name", "lat", "lng", "type", "tier", "kind", "source", "confidence"}`.
 
-### `GET /route?source&target&weight`
-- `source`, `target`: int, default 1 / 5
-- `weight`: `time` (default) · `distance` · `cost` — validated as a `Literal`; anything else is a 422 from FastAPI
-- Calls `graph.shortest_path()`
-- Response shape: `{"path": [...], "edges": [...], "totals": {"distance", "time", "cost", "real_fare"}}` — totals are **nested**, not flat top-level keys.
-- Note: `weight=cost` optimizes on the legacy static `cost` column of the edges table, not on `real_fare`.
+### `GET /route?source&target&weight&road=false`
+- `source`, `target`: integer node ID or `"lat,lng"` string, default `"1"` / `"5"`.
+- `weight`: `time` (default) · `distance` · `cost` · `convenient` (`convenient` is valid **only** when `road=true`; returns 422 when `road=false`).
+- `road`: `false` (default) uses `edges` + `get_nodes_with_coords`; `true` uses `railway_edges` + `road_edges` + `get_all_nodes_with_coords`.
+- Response shape (`road=false`): `{"path": [...], "edges": [...], "totals": {"distance", "time", "cost", "real_fare"}}`.
 
-### `GET /compare?source&target&live&prefer_seat`
-- Calls `graph.compare_routes()`.
-- If `live=true` or `prefer_seat=true`: calls `railradar.annotate_route_with_live_status(route, limit=3)` on each route.
-- If `prefer_seat=true`: calls `alternatives.annotate_route_with_alternatives(route, prefer_seat=True)` on each route.
-- Always returns exactly 3 routes on success (they may share the same path; see below). Never returns `[]`.
+### `GET /compare?source&target&live=false&prefer_seat=false&road=false`
+- Calls `graph.compare_routes(src, tgt, road=road)`.
+- When `road=false` (default): returns **exactly 3 routes** (`optimized_for` in `["time", "distance", "cost"]`), byte-identical to the legacy contract.
+- When `road=true`: returns **4 routes** (`optimized_for` in `["time", "distance", "cost", "convenient"]`), groups consecutive road edges into single legs, prices cab legs via `cabs.py`, and includes `road_legs` + `convenience_score` (on the `convenient` candidate).
+- If `live=true` or `prefer_seat=true`: annotates each candidate with `railradar.annotate_route_with_live_status(route, limit=3)` and (when `prefer_seat=true`) `alternatives.annotate_route_with_alternatives(route, prefer_seat=True)`.
 
 ### `GET /cabs/estimate?pickup_lat&pickup_lng&dropoff_lat&dropoff_lng`
 - Also accepts station IDs helper: `?source_station_id=1&target_station_id=6`.
@@ -54,7 +86,7 @@ All stations sorted by id: `[{"id", "name", "lat", "lng", "type"}]`. `type` is t
 - Returns side-by-side fare estimates, ETAs, and universal deep links for **Uber** (Auto, Go, Premier), **Ola** (Auto, Mini, Prime Sedan), **Rapido** (Bike, Auto), and **Auto Rickshaw** (metered).
 - Returns 422 if neither coordinate quartet nor station ID pair is provided.
 
-### Error responses (added 2026-09-23)
+### Error responses
 `graph.py` raises `RoutingError` subclasses; `main.py` maps them to JSON `{"detail": "...", "error": "<ClassName>"}`:
 
 | Case | Error | Status |
@@ -62,185 +94,94 @@ All stations sorted by id: `[{"id", "name", "lat", "lng", "type"}]`. `type` is t
 | node id not in graph | `UnknownNode` | 404 |
 | no path between the nodes | `NoPath` | 404 |
 | `source == target` | `SameNode` | 400 |
-| bad `weight` (via `/route`) | FastAPI `Literal` validation | 422 |
-| non-integer `source`/`target` | FastAPI validation | 422 |
+| bad `weight` (or `weight=convenient` with `road=false`) | FastAPI `Literal` / `InvalidWeight` | 422 |
+| invalid `source`/`target` (neither integer nor `"lat,lng"`) | `HTTPException` | 422 |
 | Supabase transport error (stale connection, unreachable) after one retry | `UpstreamError` | 502 |
 | any other unexpected exception | propagates | 500 |
 
-Previously `/route` returned a bare 500 for bad weight or unknown node, and `/compare` swallowed every exception (including Supabase outages) into an empty `[]` with HTTP 200.
+## `graph.py` — routing logic & road-aware extensions
 
-## `graph.py` — routing logic
+### Named Constants (top of `graph.py`)
+| Constant | Value | Meaning |
+|---|---|---|
+| `WALK_SPEED_KMH` | `5.0` | Walking speed in km/h (12 min/km) |
+| `MAX_WALK_EDGE_KM` | `1.0` | Road edges $\le 1.0\text{ km}$ allow walking; $> 1.0\text{ km}$ require cab/auto |
+| `MAX_TOTAL_WALK_KM` | `1.5` | Maximum cumulative walking distance per route (km) |
+| `MAX_WALK_CAP_ITERATIONS` | `5` | Maximum re-runs removing longest walking edge when `MAX_TOTAL_WALK_KM` is exceeded |
+| `CAB_PICKUP_WAIT_MIN` | `4.0` | Pickup/hailing wait added **once per grouped cab leg** (see 3–5 min `eta_minutes` in `cabs.py`); walking legs get no wait |
+| `TRANSFER_PENALTY_MIN` | `8.0` | Penalty in equivalent minutes per mode change in convenience score |
+| `WARM_NODE_BOARDING_PENALTY_MIN` | `5.0` | Extra uncertainty penalty (min) when boarding at a `tier='warm'` node |
+| `WALK_PENALTY_MULTIPLIER` | `2.0` | Walking effort multiplier (1 min walk = 2 min perceived effort) |
+| `CONVENIENT_K_PATHS` | `10` | Number of shortest simple paths (by time) scored for `convenient` and `time` (`road=true`) |
 
-- Exceptions: `RoutingError` → `InvalidWeight`, `UnknownNode`, `SameNode`, `NoPath`. `build_graph()` validates `weight`; `_find_path()` validates endpoints and converts `NetworkXNoPath`. `UpstreamError` wraps Supabase transport failures.
-- Supabase client (module-level, created at import from `SUPABASE_URL`/`SUPABASE_KEY`) uses a custom `httpx.Client` with `keepalive_expiry=15s`, because Supabase closes idle connections and reusing a stale pooled connection raised `httpx.RemoteProtocolError: Server disconnected` (seen 2026-09-23 as sporadic 500s on the first request after a pause). `fetch_nodes()`/`fetch_edges()` also retry once on transport errors via `_with_reconnect()`.
-
-- `fare_for_distance(km, mode)` — slab lookup. `TRAIN_FARE_SLABS = [(10,5),(20,10),(25,15),(30,20),(inf,30)]`, `METRO_FARE_SLABS = [(2,10),(4,15),(6,20),(8,25),(10,30),(inf,40)]`. Walking = ₹0.
-- `fetch_nodes()` / `fetch_edges()` — pull from Supabase on every request, no cache. `compare_routes()` calls each **once** and shares the graph across its three searches (was three builds / six round trips before 2026-09-23).
-- `build_graph(weight="time")` — builds a NetworkX `DiGraph`; every edge carries `distance`, `time`, `cost`, `fare_weight` (per-edge slab fare) and a `weight` mirror of the requested attribute; adds reverse edges automatically for `bus`, `cab`, `train`, `metro`, `walking`.
-- `shortest_path(source, target, weight, graph=None)` — one Dijkstra run on the requested weight; pass `graph=(G, NODES)` to reuse a built graph. Float totals are rounded to 2 decimals (`11.8`, not `11.799999999999997`).
-- `shortest_path_cost_approx(source, target, graph=None)` — a **separate**, only-partially-used Dijkstra run that weights edges by per-edge `fare_for_distance()` (not cumulative per-mode slabs — the function's own docstring flags this as an approximation).
-- `compare_routes(source, target)`:
-  1. Runs `shortest_path()` for `time` and `distance` — **two real Dijkstra runs**, not three.
-  2. Runs `shortest_path_cost_approx()` as a third candidate (`fare_approx`).
-  3. The `"cost"` result is whichever of the **three** candidates (time, distance, fare_approx) has the lowest `real_fare`, so it can be the `fare_approx` path (confirmed: Belapur CBD → Pendhar returns train→walk→metro with fare ₹35 as the cost route, distinct from the ₹40 metro-only time/distance routes). Ties go to `time`, then `distance`.
-  4. Returns exactly 3 route dicts tagged `optimized_for`. Two or all three often share the same path — the frontend must expect duplicates.
-  5. Raises `RoutingError` for bad input and lets data-source errors propagate (no more silent `[]`).
-  6. Builds the graph once (two Supabase round trips) per call.
-
-> Earlier docs described 3 independent Dijkstra runs returning three distinct optimal paths; the 2026-09-23 audit draft of this doc then over-corrected and said the cost route is always a copy of the time/distance path. Neither is right — see step 3.
+### Core Mechanics
+- **Default path (`road=False`):** `build_graph()` calls `fetch_nodes()` and `fetch_edges()` once, builds the `nx.DiGraph`, and runs 3 searches (`time`, `distance`, `fare_approx`), picking the `cost` winner by `real_fare`. Works whether or not the SQL migration has been applied.
+- **Road-aware path (`road=True`):**
+  1. **One fetch per table:** `build_graph(road=True)` calls `fetch_all_nodes()`, `fetch_railway_edges()`, and `fetch_road_edges()` once and shares the graph across all 4 searches (`time`, `distance`, `cost`, `convenient`).
+  2. **Per-edge Dijkstra weights:** Road edges $\le 1.0\text{ km}$ have `mode="walking"` ($5\text{ km/h}$, `fare_weight=0`); road edges $> 1.0\text{ km}$ have `mode="cab"` ($25\text{ km/h}$, marginal `fare_weight = distance * 18.22`). Scheduled `train` and `metro` edges are never overwritten by `road_edges`.
+  3. **Walking-cap post-check (`_find_path_with_walk_cap`):** After Dijkstra finds a path, if total walking exceeds `MAX_TOTAL_WALK_KM` (`1.5 km`), the longest walking edge in that path is removed (or upgraded to `cab` if it is a cut-edge) and Dijkstra re-runs, at most `MAX_WALK_CAP_ITERATIONS` (`5`) times.
+  4. **Contiguous leg grouping & pricing (`_route_result(..., road=True)`):** Consecutive road edges of the same mode (`cab` or `walking`) are merged into **one road leg**:
+     - For `cab` legs: `CAB_PICKUP_WAIT_MIN` (`4.0 min`) is added **once** to the leg's travel time, the leg is priced **once** on its summed distance via `cabs.metered_auto_fare(leg_dist)` (so the ₹27 base fare is never double-counted across hops), and `cab_estimates` from `cabs.get_all_cab_estimates(..., road_km_override=leg_dist)` are attached.
+     - For `walking` road legs: no pickup wait is added, `cost = 0`, and `cab_estimates` is omitted.
+     - Every road leg carries `"distance_source": "estimated"`, `"time_source": "estimated"`, and `"fare_source": "estimated"`, plus `"via": [...]` when $>1$ road hop was merged.
+  5. **Convenient route (`shortest_path_convenient`):** Generates up to `CONVENIENT_K_PATHS` (`10`) simple paths via `nx.shortest_simple_paths(G, source, target, weight="time")`, scores each with `_convenience_score()`, and returns the minimum with `"convenience_score"` attached.
 
 ## `railradar.py` — live data integration (rewritten 2026-09-23)
 
 Station live-board integration (m-Indicator style). One RailRadar call per boarding station, filtered down to the trains that actually carry the passenger along the first train leg of the route.
 
-**Station codes** — `STATION_CODES` maps normalized graph names to RailRadar codes, all verified against the live API on 2026-09-23: Vashi `VSH`, Sanpada `SNCR`, Juinagar `JNJ`, Nerul `NEU`, Seawoods-Darave `SWDK` (the old `SWDV` is an inactive record that returns an empty board), Belapur CBD `BEPR`, Kharghar `KHAG`, Mansarovar `MANR`, Khandeshwar `KNDS`, Panvel `PNVL`, Targhar `TRGR`, Bamandongri `BMDR`, Kharkopar `KARP`. Sagar Sangam is not a RailRadar station (no passenger halt); it has the internal token `SGSG` so it can sit on a corridor, and boarding there yields `reason: station_not_in_railradar`. Metro stations are not in the map.
+**Station codes** — `STATION_CODES` maps normalized graph names to RailRadar codes: Vashi `VSH`, Sanpada `SNCR`, Juinagar `JNJ`, Nerul `NEU`, Seawoods-Darave `SWDK`, Belapur CBD `BEPR`, Kharghar `KHAG`, Mansarovar `MANR`, Khandeshwar `KNDS`, Panvel `PNVL`, Targhar `TRGR`, Bamandongri `BMDR`, Kharkopar `KARP`. Sagar Sangam uses internal token `SGSG` (`NOT_IN_RAILRADAR = {"SGSG"}`).
 
-**Corridor model** — `CORRIDORS` lists ordered station codes per line, with `@MUMBAI`, `@THANE`, `@URAN` anchors standing for termini outside the graph (CSMT, Vadala Road, Goregaon, Thane, Uran, ...). Derived from actual boards:
-- `harbour`: @MUMBAI → Vashi → Sanpada → Juinagar → Nerul → Seawoods → Belapur → Kharghar → Mansarovar → Khandeshwar → Panvel
-- `trans-harbour`: @THANE → Juinagar → ... → Panvel (Thane–Panvel/Nerul trains **skip Sanpada and Vashi**)
-- `trans-harbour-vashi`: @THANE → Sanpada → Vashi
-- `uran-nerul`: Nerul → Seawoods → Sagar Sangam → Targhar → Bamandongri → Kharkopar → @URAN
-- `uran-belapur`: Belapur → Sagar Sangam → Targhar → Bamandongri → Kharkopar → @URAN
+**Corridor model** — `CORRIDORS`: `harbour`, `trans-harbour`, `trans-harbour-vashi`, `uran-nerul`, `uran-belapur`.
 
-`train_serves(source, destination, boarding, alighting)` returns the corridor name if a train running source→destination stops at boarding strictly before alighting in its direction of travel, else `None`. This excludes wrong-direction trains, trains terminating at the boarding station (arrivals), trains that short-turn before the alighting station, and trains on other branches.
-
-**Functions**
-- `get_station_live_board(code, hours=2)` — `GET /v1/stations/{code}/live`, Bearer auth. RailRadar only accepts `hours` ∈ {2,4,6,8}. Cached per station for 60s (both in memory and in `backend/.cache/railradar` to survive server reloads in dev). Enforces a 10 call/min client rate limit and caches upstream 429 errors for 60s. Raises on missing key / HTTP error.
-- `first_train_leg(route)` — finds the first run of consecutive `train` edges; boarding = its first station, alighting = the farthest station of that run still on one corridor with the boarding station (i.e. where you'd have to change trains). A route ending in metro/walking therefore uses the train alighting station, not the route's final node.
-- `select_relevant_trains(board, boarding_code, alighting_code, limit)` — keeps only `train.type == "EMU"`, only trains with a departure at the boarding station, only trains passing `train_serves`; normalizes timestamps to IST; applies symmetric midnight wrap; classifies trains whose departure has passed (>1m before board timestamp) as `departed`; sorts by expected departure; returns last 2 departed + first `limit` upcoming.
-- `annotate_route_with_live_status(route, limit=5)` — sets `live_trains` and `live_status` on the route dict (main.py passes `limit=3`).
-
-**Response shape**
-```json
-"live_trains": [{
-  "train_number": "98184", "route_name": "Panvel - Mumbai CSMT Local",
-  "towards": "Mumbai CSMT", "destination_code": "CSMT", "line": "harbour",
-  "departure_time": "18:37", "expected_departure": "2026-09-23T18:37:00+05:30",
-  "platform": "2", "status": "scheduled|upcoming|departed|not-started|at-station",
-  "delay_minutes": null
-}],
-"live_status": {
-  "applicable": true, "reason": "ok",
-  "boarding_station": "Panvel", "alighting_station": "Vashi",
-  "boarding_code": "PNVL", "alighting_code": "VSH", "line": "harbour",
-  "trains_on_board": 51, "relevant_trains": 16, "not_suburban": 9, "not_serving_route": 26,
-  "board_time": "2026-09-23T18:32:59+05:30", "quota_remaining": 823
-}
-```
-`live_status.reason` ∈ `ok` · `no_relevant_trains` · `no_train_leg` (`applicable: false`, e.g. all-metro route — UI should show "not applicable") · `station_not_in_railradar` · `api_key_missing` · `fetch_failed` · `parse_failed` (adds `error`: exception class name). Failures are never silent: `live_trains` is `[]` and the reason says why. `delay_minutes` is `null` for trains RailRadar is not yet tracking, not `0`. `platform` may be `null`.
-
-**Rate limits (observed from response headers):** 10 requests/minute, 1,000/month on the sandbox key.
+**Rate limits:** 10 requests/minute, 1,000/month on the sandbox key (60s memory + disk cache in `backend/.cache/railradar`).
 
 ## `alternatives.py` — shared alternatives engine (added 2026-10-05, Phase C)
 
-Implements Idea 1 (Railway Backing) and Idea 2 (Forward Switching) from `future-ideas.md` under `?prefer_seat=true`:
-- **Backing (`kind="back"`):** Board a train in the reverse direction to an originating terminus (e.g. Khandeshwar → Panvel), boarding a fresh originating train with guaranteed seating. Requires a valid ticket/pass for the detour (advisory note attached).
-- **Forward Switching (`kind="switch"`):** Board direct train, alight at an intermediate origin/junction station (e.g. Belapur CBD), and switch to a fresh originating train starting there.
+Implements Idea 1 (Railway Backing, `kind="back"`) and Idea 2 (Forward Switching, `kind="switch"`) under `?prefer_seat=true` using `ORIGIN_STATIONS = {"PNVL", "BEPR", "NEU", "VSH"}`, a 4-minute transfer buffer at Belapur CBD (3 minutes elsewhere), and a 15-minute max extra time threshold.
 
-**Core Mechanics:**
-- `ORIGIN_STATIONS = {"PNVL", "BEPR", "NEU", "VSH"}`: Suburban originating stations.
-- `find_pivots(b_code, a_code, corridor, max_pivots=2)`: Discovers candidate stations strictly behind (backing) or strictly between (switching), sorted by proximity and capped at 2.
-- `compute_alternatives(route, boards, prefer_seat, threshold_minutes=15, transfer_buffer_minutes=3)`:
-  - Uses pre-fetched boards (`hours=4`).
-  - Matches train numbers across station boards to extract real scheduled/expected times (falling back to edge times if train record absent on downstream board).
-  - Enforces minimum transfer buffer: **4 minutes** at Belapur CBD (`BEPR`), **3 minutes** elsewhere.
-  - Sorts candidate origin trains by expected departure to pair earliest feasible Leg 2.
-  - Computes `extra_minutes` against the earliest upcoming direct train.
-  - Discards alternatives exceeding the 15-minute delay threshold; returns max 2 alternatives sorted by extra time.
-- `annotate_route_with_alternatives(route_result, prefer_seat=True)`: Fetches missing pivot boards using the cached `get_station_live_board(hours=4)` and attaches `live_alternatives` and `live_alternatives_status`.
+## `cabs.py` — cab provider layer (updated 2026-10-16)
 
-**Response Shape:**
-```json
-"live_alternatives": [{
-  "kind": "switch|back",
-  "seat": true,
-  "via": "Belapur CBD",
-  "via_code": "BEPR",
-  "leg1": {
-    "train_number": "98090", "route_name": "Panvel - Mumbai CSMT Local",
-    "departure_time": "18:24", "expected_departure": "2026-10-05T18:24:00+05:30", "platform": "3"
-  },
-  "leg2": {
-    "train_number": "98184", "route_name": "Belapur CBD - Mumbai CSMT Local",
-    "departure_time": "18:37", "expected_departure": "2026-10-05T18:37:00+05:30", "platform": "2"
-  },
-  "direct": {
-    "train_number": "98090", "departure_time": "18:24", "expected_departure": "2026-10-05T18:24:00+05:30"
-  },
-  "extra_minutes": 8,
-  "note": "Switch at Belapur CBD to a train originating there — likely seat."
-}],
-"live_alternatives_status": {
-  "applicable": true, "reason": "ok",
-  "pivots_checked": ["BEPR"], "alternatives_found": 1, "calls_used": 1
-}
-```
+- **Haversine & Road Distance:** Straight-line GPS distance × `ROAD_TORTUOSITY_FACTOR = 1.30` (or exact `road_km_override` when pricing grouped road legs from `graph.py`), driving speed `URBAN_SPEED_KMH = 25.0`.
+- **Tariff Constants & Providers:**
+  - **Auto Rickshaw (`AutoRickshawProvider`):** `AUTO_BASE_FARE_INR = 27.0` for the first `AUTO_BASE_DISTANCE_KM = 1.5` km, plus `AUTO_PER_KM_RATE_INR = 18.22`/km thereafter. Labelled *"Estimated from published MMRTA tariff cards (₹27 base + ₹18.22/km; reported, official card pending)"* (press-reported revision w.e.f. `01.09.2026`; prior published MMRTA card w.e.f. `01.02.2025` was ₹26.00 + ₹17.14/km; the earlier ₹28 + ₹18.66/km in code was the 2022 black-and-yellow taxi card).
+  - **Uber India (`UberProvider`):** Uber Auto, Uber Go, Uber Premier.
+  - **Ola Cabs (`OlaProvider`):** Ola Auto, Ola Mini, Ola Prime Sedan.
+  - **Rapido (`RapidoProvider`):** Rapido Bike, Rapido Auto.
+- Every estimate object carries `"estimated": true` and `"fare_source": "estimated"`.
 
-## `cabs.py` — cab provider layer (added 2026-10-05, Phase E)
+**Tests:** `test_railradar.py` (29), `test_routing_errors.py` (20), `test_phase_b_railradar.py` (12), `test_phase_c_alternatives.py` (8), `test_cabs.py` (11), `test_road_edges.py` (11). **91 tests total**, stdlib `unittest`, 100% offline fixture-backed (~0.2s).
 
-Implements the aggregator comparison pattern (industry standard for Google Maps / Citymapper):
-- **Haversine & Road Distance:** Straight-line GPS distance expanded with a 1.30x road tortuosity factor for Navi Mumbai's urban grid; estimates travel time using a 25 km/h urban speed model.
-- **Provider Rate Cards:**
-  - **Auto Rickshaw:** Official MMRTA Navi Mumbai metered auto rate (₹28 for first 1.5 km, ₹18.66/km thereafter).
-  - **Uber India:** Uber Auto (Base ₹30 + ₹16/km), Uber Go (Base ₹60 + ₹15/km), Uber Premier (Base ₹80 + ₹19/km).
-  - **Ola Cabs:** Ola Auto (Base ₹30 + ₹15.5/km), Ola Mini (Base ₹60 + ₹14.5/km), Ola Prime Sedan (Base ₹85 + ₹18.5/km).
-  - **Rapido:** Rapido Bike (Base ₹25 + ₹9/km, 15% faster traffic transit), Rapido Auto (Base ₹30 + ₹15/km).
-- **Universal One-Tap Deep Links:**
-  - Uber: `https://m.uber.com/ul/?action=setPickup&client_id=optigo&pickup[latitude]=...&dropoff[latitude]=...`
-  - Ola: `https://book.olacabs.com/?lat=...&lng=...&drop_lat=...&drop_lng=...`
-  - Rapido: `rapido://ride?pickup_lat=...&drop_lat=...`
-- **Output:** Returns all ride tiers sorted by lowest fare first, tagged `estimated: true` with disclaimer.
+---
 
-**Tests:** `backend/tests/test_railradar.py` (29), `backend/tests/test_routing_errors.py` (20), `backend/tests/test_phase_b_railradar.py` (12), `backend/tests/test_phase_c_alternatives.py` (8), `backend/tests/test_cabs.py` (11). **80 tests total**, stdlib `unittest`, 100% offline fixture-backed (runtime ~0.15s). Run from `backend/`: `python -m unittest discover -s tests -v`.
+## For the frontend (Himesh)
 
-## CORS
-Hardcoded in `main.py`:
-```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-No prod origin set yet — needs updating before deploy.
+Default API behaviour (`GET /nodes`, `GET /compare`, `GET /route` without the new query params) is **100% unchanged and byte-identical**. When you opt into the new road/warm-node features, here is what changes:
 
-## Fare Slabs (unverified against official notification)
-- Train: 0–10km ₹5, 11–20km ₹10, 21–25km ₹15, 26–30km ₹20, 31+km ₹30
-- Metro: 0–2km ₹10, 2–4km ₹15, 4–6km ₹20, 6–8km ₹25, 8–10km ₹30, 10+km ₹40
+1. **`GET /compare?source=...&target=...&road=true` returns 4 candidates (instead of 3):**
+   - `optimized_for` values are `["time", "distance", "cost", "convenient"]`.
+   - The 4th candidate (`optimized_for: "convenient"`) includes a top-level numeric `"convenience_score"` field (lower = more convenient).
+2. **Merged road legs in `edges` (and `road_legs`):**
+   - Consecutive road edges of the same mode (`"cab"` or `"walking"`) are merged into a single leg object.
+   - Because multi-hop road segments are merged into one leg, **`route.edges.length` can be shorter than `route.path.length - 1`**. When a road leg merges 2 or more hops, it includes `"via": ["Intermediate Stop Name", ...]`.
+   - Every road leg in `route.edges` (and duplicated in `route.road_legs` for convenience) carries:
+     - `"distance"`, `"time"`, `"cost"`
+     - `"distance_source": "estimated"`, `"time_source": "estimated"`, `"fare_source": "estimated"`
+     - `"cab_estimates": [...]` — **attached only on `"cab"` legs** (never on `"walking"` legs). Contains the 8 provider tier estimates from `cabs.py` (`Auto Rickshaw`, `Rapido`, `Ola`, `Uber`) with deep links and `fare_low`/`fare_high`.
+   - Scheduled `"train"` and `"metro"` edges inside `route.edges` keep their existing shape `{"from": ..., "to": ..., "mode": "train"|"metro"}`.
+3. **`GET /nodes?include_warm=true` adds 4 metadata fields per node:**
+   - Returns both hot stations and warm nodes (bus stops / auto stands), adding:
+     - `"tier"`: `"hot" | "warm"`
+     - `"kind"`: `"rail" | "metro" | "bus_depot" | "bus_stop" | "auto_stand"`
+     - `"source"`: `"seed" | "osm_overpass" | ...`
+     - `"confidence"`: `"high" | "medium" | "low"`
+   - If you display warm nodes sourced from OpenStreetMap (`source === "osm_overpass"`), include `"© OpenStreetMap contributors (ODbL)"` in map attribution.
 
-## Setup
+---
+
+## Setup & Tests
 ```bash
-# from the repo root
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # root file forwards to backend/requirements.txt
-cd backend && ../.venv/bin/uvicorn app.main:app --reload --port 8000
+# Run offline test suite (91 tests, no network or keys required)
+env -i PATH="$PATH" SUPABASE_URL="http://localhost:54321" SUPABASE_KEY="dummy" PYTHONPATH=backend .venv/bin/python -m unittest discover -s backend/tests -v
 ```
-The pin list lives only in `backend/requirements.txt`; the root `requirements.txt` is a one-line `-r backend/requirements.txt` so the two cannot drift. The repo `.venv` was rebuilt on 2026-09-23 on Python 3.12 (the old one pointed at a removed 3.13 interpreter) and is now gitignored.
 
-Tests: `cd backend && ../.venv/bin/python -m unittest discover -s tests -v`
-`.env` needs `SUPABASE_URL`, `SUPABASE_KEY` (secret key, not anon), `RAILRADAR_API_KEY`.
-
-## Test Node IDs
-| Station | ID |
-|---|---|
-| Vashi | 1 |
-| Belapur CBD | 6 |
-| Panvel | 11 |
-| Kharkopar | 14 |
-| Pendhar | 23 |
-| RBI | 24 |
-
-## Frontend
-
-`frontend/` on `main` is the untouched `create-next-app` scaffold (Next.js 16.2, React 19, Tailwind 4, TS) — the frontend owner (Himesh) builds here. The Phase 2 reference screen built on 2026-09-23 was reverted from `main` on 2026-09-25 and kept on branch **`frontend-reference`** (commit `647132f`): `lib/api.ts` typed client, `lib/routes.ts` helpers, `RouteCard`, `page.tsx` with pickers/optimise-for/shareable URLs. Everything the frontend needs to know about the API is in `handoff.md` (local, gitignored — share directly).
-
-Constraints the frontend must respect: backend CORS allows `http://localhost:3000` only; display `totals.real_fare` not `totals.cost`; candidates may share a path; `live_status.reason == "no_train_leg"` is "not applicable", not an error.
-
-## Environment gotchas
-- Flatpak VS Code's integrated terminal runs in a sandbox with Python 3.13; the repo `.venv` is host Python 3.12. Run backend commands via `flatpak-spawn --host …` or a system terminal. Do not rebuild the venv from inside the sandbox.
-- Inside Claude Code's shell, `next dev` (Turbopack) exited silently mid-compile; `next dev --webpack` and `next build && next start` worked.
-
-## Known doc/code mismatches found this pass (all resolved 2026-09-23)
-- Prior README described a `/nodes` endpoint that did not exist; it exists now (added 2026-09-23).
-- Prior README described flat `total_distance`/`total_time` keys on `/route` — actual response nests them under `"totals"`.
-- Prior handoff/log described a fully different `railradar.py` (per-train lookup, `get_local_trains`/`find_relevant_trains`/`get_train_live`, commit `2e48187`). Commit `3f8b4d8` replaced it with a station-live-board version whose direction filter was broken (matched the route's final node against the train's destination/name and fell back to the whole board). Rewritten on 2026-09-23 as described above.

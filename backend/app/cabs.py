@@ -18,6 +18,22 @@ ROAD_TORTUOSITY_FACTOR = 1.30
 # Average urban driving speed (km/h) including traffic lights and congestion
 URBAN_SPEED_KMH = 25.0
 
+# MMRTA metered auto-rickshaw tariff (Option 2: ₹27.00 base for first 1.5 km + ₹18.22/km).
+# Source: Press-reported MMRTA revision w.e.f. 01.09.2026 (reported, official card pending;
+# prior published MMRTA card w.e.f. 01.02.2025 was ₹26.00 base + ₹17.14/km).
+AUTO_BASE_FARE_INR = 27.0
+AUTO_BASE_DISTANCE_KM = 1.5
+AUTO_PER_KM_RATE_INR = 18.22
+
+
+def metered_auto_fare(road_km: float) -> float:
+    """Estimated MMRTA metered auto fare: flat base for first 1.5 km, per-km thereafter."""
+    if road_km <= 0:
+        return 0.0
+    if road_km <= AUTO_BASE_DISTANCE_KM:
+        return AUTO_BASE_FARE_INR
+    return round(AUTO_BASE_FARE_INR + (road_km - AUTO_BASE_DISTANCE_KM) * AUTO_PER_KM_RATE_INR, 2)
+
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Straight-line distance between two GPS coordinates in kilometers."""
@@ -31,11 +47,18 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def estimate_road_distance_and_duration(
-    lat1: float, lon1: float, lat2: float, lon2: float
+    lat1: float,
+    lon1: float,
+    lat2: float,
+    lon2: float,
+    road_km_override: Optional[float] = None,
 ) -> tuple[float, int]:
     """Calculate estimated road distance (km) and driving duration (minutes)."""
-    straight_km = haversine_km(lat1, lon1, lat2, lon2)
-    road_km = round(straight_km * ROAD_TORTUOSITY_FACTOR, 2)
+    if road_km_override is not None:
+        road_km = round(float(road_km_override), 2)
+    else:
+        straight_km = haversine_km(lat1, lon1, lat2, lon2)
+        road_km = round(straight_km * ROAD_TORTUOSITY_FACTOR, 2)
     # Base 3 mins for pickup/junction delays + travel time
     duration_min = max(5, round((road_km / URBAN_SPEED_KMH) * 60) + 3)
     return road_km, duration_min
@@ -46,27 +69,35 @@ class CabProvider(ABC):
 
     @abstractmethod
     def estimate(
-        self, pickup_lat: float, pickup_lng: float, dropoff_lat: float, dropoff_lng: float
+        self,
+        pickup_lat: float,
+        pickup_lng: float,
+        dropoff_lat: float,
+        dropoff_lng: float,
+        road_km_override: Optional[float] = None,
     ) -> list[dict]:
         """Return list of estimate dicts for this provider's vehicle tiers."""
         pass
 
 
 class AutoRickshawProvider(CabProvider):
-    """Official MMRTA metered auto rickshaw for Navi Mumbai / Mumbai."""
+    """Estimated MMRTA metered auto rickshaw for Navi Mumbai / Mumbai."""
 
     def estimate(
-        self, pickup_lat: float, pickup_lng: float, dropoff_lat: float, dropoff_lng: float
+        self,
+        pickup_lat: float,
+        pickup_lng: float,
+        dropoff_lat: float,
+        dropoff_lng: float,
+        road_km_override: Optional[float] = None,
     ) -> list[dict]:
         road_km, duration_min = estimate_road_distance_and_duration(
-            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng
+            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, road_km_override=road_km_override
         )
 
-        # Official MMRTA fare: ₹28 base for first 1.5 km, ₹18.66 per km after
-        if road_km <= 1.5:
-            base_fare = 28.0
-        else:
-            base_fare = 28.0 + (road_km - 1.5) * 18.66
+        # Estimated from published MMRTA tariff cards: ₹27 base for first 1.5 km,
+        # ₹18.22 per km after (reported w.e.f. 01.09.2026, official card pending).
+        base_fare = metered_auto_fare(road_km)
 
         low = round(base_fare * 0.95)
         high = round(base_fare * 1.10)
@@ -83,7 +114,11 @@ class AutoRickshawProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": f"geo:{pickup_lat},{pickup_lng}?q=auto+stand",
                 "estimated": True,
-                "note": "Official MMRTA meter rate (₹28 base + ₹18.66/km). Street hail / auto stand.",
+                "fare_source": "estimated",
+                "note": (
+                    "Estimated from published MMRTA tariff cards "
+                    "(₹27 base + ₹18.22/km; reported, official card pending). Street hail / auto stand."
+                ),
             }
         ]
 
@@ -92,10 +127,15 @@ class UberProvider(CabProvider):
     """Uber India (Uber Auto, Uber Go, Uber Premier) with universal deep links."""
 
     def estimate(
-        self, pickup_lat: float, pickup_lng: float, dropoff_lat: float, dropoff_lng: float
+        self,
+        pickup_lat: float,
+        pickup_lng: float,
+        dropoff_lat: float,
+        dropoff_lng: float,
+        road_km_override: Optional[float] = None,
     ) -> list[dict]:
         road_km, duration_min = estimate_road_distance_and_duration(
-            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng
+            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, road_km_override=road_km_override
         )
 
         deeplink = (
@@ -128,6 +168,7 @@ class UberProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Affordable doorstep 3-wheeler auto.",
             },
             {
@@ -141,6 +182,7 @@ class UberProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Comfortable AC compact hatchback (WagonR, Indica).",
             },
             {
@@ -154,6 +196,7 @@ class UberProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Spacious premium sedan (Dzire, Etios) with top-rated drivers.",
             },
         ]
@@ -163,10 +206,15 @@ class OlaProvider(CabProvider):
     """Ola Cabs (Ola Auto, Ola Mini, Ola Prime Sedan)."""
 
     def estimate(
-        self, pickup_lat: float, pickup_lng: float, dropoff_lat: float, dropoff_lng: float
+        self,
+        pickup_lat: float,
+        pickup_lng: float,
+        dropoff_lat: float,
+        dropoff_lng: float,
+        road_km_override: Optional[float] = None,
     ) -> list[dict]:
         road_km, duration_min = estimate_road_distance_and_duration(
-            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng
+            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, road_km_override=road_km_override
         )
 
         deeplink = (
@@ -198,6 +246,7 @@ class OlaProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Doorstep auto with OTP verification.",
             },
             {
@@ -211,6 +260,7 @@ class OlaProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Pocket-friendly AC hatchback.",
             },
             {
@@ -224,6 +274,7 @@ class OlaProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Top sedans with free in-cab Wi-Fi.",
             },
         ]
@@ -233,10 +284,15 @@ class RapidoProvider(CabProvider):
     """Rapido (Rapido Bike Taxi and Rapido Auto)."""
 
     def estimate(
-        self, pickup_lat: float, pickup_lng: float, dropoff_lat: float, dropoff_lng: float
+        self,
+        pickup_lat: float,
+        pickup_lng: float,
+        dropoff_lat: float,
+        dropoff_lng: float,
+        road_km_override: Optional[float] = None,
     ) -> list[dict]:
         road_km, duration_min = estimate_road_distance_and_duration(
-            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng
+            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, road_km_override=road_km_override
         )
 
         deeplink = (
@@ -265,6 +321,7 @@ class RapidoProvider(CabProvider):
                 "duration_minutes": bike_duration,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Fast, solo bike taxi for beating peak-hour traffic.",
             },
             {
@@ -278,6 +335,7 @@ class RapidoProvider(CabProvider):
                 "duration_minutes": duration_min,
                 "deeplink": deeplink,
                 "estimated": True,
+                "fare_source": "estimated",
                 "note": "Standard auto with low commission rates.",
             },
         ]
@@ -298,17 +356,24 @@ def get_all_cab_estimates(
     dropoff_lng: float,
     pickup_name: Optional[str] = None,
     dropoff_name: Optional[str] = None,
+    road_km_override: Optional[float] = None,
 ) -> dict:
     """Aggregate estimates from all providers, sorted by lowest fare."""
     road_km, duration_min = estimate_road_distance_and_duration(
-        pickup_lat, pickup_lng, dropoff_lat, dropoff_lng
+        pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, road_km_override=road_km_override
     )
 
     all_estimates = []
     for provider in PROVIDERS:
         try:
             all_estimates.extend(
-                provider.estimate(pickup_lat, pickup_lng, dropoff_lat, dropoff_lng)
+                provider.estimate(
+                    pickup_lat,
+                    pickup_lng,
+                    dropoff_lat,
+                    dropoff_lng,
+                    road_km_override=road_km_override,
+                )
             )
         except Exception:
             pass
@@ -332,8 +397,9 @@ def get_all_cab_estimates(
         "estimates_count": len(all_estimates),
         "estimates": all_estimates,
         "disclaimer": (
-            "Fares and ETAs are calibrated models based on official MMRTA meter rates and "
-            "published provider base rates. Tapping a deep link opens the provider app "
+            "Fares and ETAs are estimated from published MMRTA tariff cards and "
+            "calibrated provider base rates. Tapping a deep link opens the provider app "
             "with pickup and dropoff preloaded to view live surge and book directly."
         ),
     }
+
