@@ -1,5 +1,5 @@
 "use client";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,6 +9,7 @@ import SchematicMap from "@/components/plan/SchematicMap";
 import RouteDetails from "@/components/plan/RouteDetails";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { DedupedRoute } from "@/lib/route-utils";
+import { ArrowLeft } from "lucide-react";
 
 function PlanContent() {
   const searchParams = useSearchParams();
@@ -21,6 +22,17 @@ function PlanContent() {
   const [to, setTo] = useState<number | null>(toParam ? parseInt(toParam, 10) : null);
   const [live, setLive] = useState(true);
   const [selectedRoute, setSelectedRoute] = useState<DedupedRoute | null>(null);
+
+  // Esc key listener to exit selected route
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedRoute) {
+        setSelectedRoute(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedRoute]);
 
   const handleSearch = (newFrom: number, newTo: number, newLive: boolean) => {
     setFrom(newFrom);
@@ -75,7 +87,20 @@ function PlanContent() {
       <div className="hidden lg:flex flex-1 bg-[var(--surface-2)] relative overflow-hidden flex-col md:flex-row min-h-0">
         {selectedRoute && (
           <div className="w-full max-w-md bg-[var(--bg)] border-r border-[var(--line)] overflow-y-auto h-full p-6 shadow-xl relative z-10 shrink-0">
-            <h3 className="font-serif font-bold text-2xl mb-6">Route details</h3>
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[var(--line)]">
+              <button
+                type="button"
+                onClick={() => setSelectedRoute(null)}
+                title="Go back (Esc)"
+                aria-label="Back to map view"
+                className="w-8 h-8 rounded-full bg-[var(--surface-2)] border border-[var(--line)] flex items-center justify-center text-[var(--ink-muted)] hover:text-[var(--ink)] hover:border-[var(--green)] hover:bg-[var(--surface)] transition-all active:scale-95 shadow-2xs"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <h3 className="font-serif font-bold text-2xl text-[var(--ink)]">
+                {selectedRoute.isCab ? "Cab & Auto details" : "Route details"}
+              </h3>
+            </div>
             <RouteDetails route={selectedRoute} />
           </div>
         )}
@@ -86,7 +111,11 @@ function PlanContent() {
       
       {/* Mobile Popup for Route Details & Map */}
       <div className="lg:hidden">
-        <BottomSheet isOpen={!!selectedRoute} onClose={() => setSelectedRoute(null)} title="Route details">
+        <BottomSheet 
+          isOpen={!!selectedRoute} 
+          onClose={() => setSelectedRoute(null)} 
+          title={selectedRoute?.isCab ? "Cab & Auto details" : "Route details"}
+        >
           {selectedRoute && (
             <div className="flex flex-col h-[70vh] overflow-y-auto">
               <div className="h-64 shrink-0 border-b border-[var(--line)]">

@@ -17,6 +17,8 @@
   --color-train: var(--green);
   --color-metro: var(--orange);
   --color-walk: var(--ink-muted);
+  --color-cab: var(--amber);
+  --color-cab-soft: var(--amber-soft);
 
   --radius-sm: 12px;
   --radius-md: 20px;
@@ -39,6 +41,8 @@
     --green-soft: #D1FAE5;
     --orange: #EA580C;
     --orange-soft: #FFEDD5;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
   }
   
   .dark {
@@ -52,6 +56,8 @@
     --green-soft: #064E3B;
     --orange: #F97316;
     --orange-soft: #7C2D12;
+    --amber: #F59E0B;
+    --amber-soft: #78350F;
   }
 
   body {
