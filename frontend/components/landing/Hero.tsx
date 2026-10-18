@@ -73,6 +73,14 @@ export default function Hero() {
               d="M50 300 C 100 300, 150 250, 150 200 L150 150 C 150 100, 200 100, 350 100"
               stroke="var(--green)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
             />
+            {/* Uran Line to Kharkopar (branching from Belapur towards top-left) */}
+            <motion.path
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 1.2, ease: "easeInOut", delay: 0.3 }}
+              d="M150 200 C 120 200, 70 170, 70 120"
+              stroke="var(--green)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+            />
             <motion.path
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
@@ -83,7 +91,8 @@ export default function Hero() {
 
             {[
               { cx: 50, cy: 300, label: "Panvel", align: "start" },
-              { cx: 150, cy: 200, label: "Belapur", align: "end" },
+              { cx: 70, cy: 120, label: "Kharkopar", align: "end" },
+              { cx: 150, cy: 200, label: "Belapur", align: "start" },
               { cx: 350, cy: 100, label: "Vashi", align: "start" },
               { cx: 250, cy: 300, label: "Pendhar", align: "start" },
             ].map((pos, i) => (
