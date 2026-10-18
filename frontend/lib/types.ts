@@ -49,9 +49,34 @@ export interface Route {
   path: string[];
   edges: Edge[];
   totals: Totals;
-  optimized_for?: 'time' | 'distance' | 'cost';
+  optimized_for?: 'time' | 'distance' | 'cost' | 'convenient';
   live_trains?: LiveTrain[];
   live_status?: LiveStatus;
+}
+
+export interface CabEstimate {
+  provider: 'Auto Rickshaw' | 'Uber' | 'Ola' | 'Rapido' | string;
+  tier: string;
+  category: 'auto' | 'cab_mini' | 'cab_sedan' | 'bike' | string;
+  fare_low: number;
+  fare_high: number;
+  currency: string;
+  eta_minutes: number;
+  duration_minutes: number;
+  deeplink: string;
+  estimated: boolean;
+  fare_source: string;
+  note: string;
+}
+
+export interface CabEstimateResponse {
+  pickup: { name: string; lat: number; lng: number };
+  dropoff: { name: string; lat: number; lng: number };
+  road_distance_km: number;
+  duration_minutes: number;
+  estimates_count: number;
+  estimates: CabEstimate[];
+  disclaimer: string;
 }
 
 export interface ApiErrorResponse {

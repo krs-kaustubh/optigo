@@ -1,4 +1,4 @@
-import { Node, Route, ApiErrorResponse, OptigoApiError } from './types';
+import { Node, Route, ApiErrorResponse, OptigoApiError, CabEstimateResponse } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -32,5 +32,8 @@ export const api = {
   getNodes: () => fetcher<Node[]>('/nodes'),
   
   compareRoutes: (sourceId: number, targetId: number, live: boolean = true) => 
-    fetcher<Route[]>(`/compare?source=${sourceId}&target=${targetId}&live=${live}`)
+    fetcher<Route[]>(`/compare?source=${sourceId}&target=${targetId}&live=${live}`),
+
+  getCabEstimates: (sourceId: number, targetId: number) =>
+    fetcher<CabEstimateResponse>(`/cabs/estimate?source_station_id=${sourceId}&target_station_id=${targetId}`)
 };

@@ -20,15 +20,15 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-16 pb-16 md:pt-32 md:pb-40">
-      <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-        <motion.div variants={container} initial="hidden" animate="show" className="max-w-xl">
+    <section className="relative overflow-hidden pt-16 pb-16 md:py-8 lg:py-10 2xl:py-16 md:min-h-[calc(100vh-3.5rem)] flex items-center">
+      <div className="container mx-auto px-4 lg:px-8 grid md:grid-cols-2 gap-8 lg:gap-12 2xl:gap-16 items-center w-full">
+        <motion.div variants={container} initial="hidden" animate="show" className="max-w-xl lg:max-w-xl 2xl:max-w-2xl">
           <motion.div variants={item}>
-            <Chip variant="outline" className="mb-6">Navi Mumbai · Train + Metro + Walk</Chip>
+            <Chip variant="outline" className="mb-4 lg:mb-5 2xl:mb-6">Navi Mumbai · Train + Metro + Walk</Chip>
           </motion.div>
-          <motion.h1 variants={item} className="font-serif text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight text-[var(--ink)] mb-6 text-balance">
+          <motion.h1 variants={item} className="font-serif text-5xl sm:text-5xl lg:text-6xl 2xl:text-7xl font-bold leading-[1.06] tracking-tight text-[var(--ink)] mb-4 lg:mb-5 2xl:mb-6 text-balance">
             One app. Every route.{" "}
-            <span className="relative inline-block text-[var(--green)] mt-2">
+            <span className="relative inline-block text-[var(--green)] mt-1 sm:mt-2">
               Optimized for you.
               <motion.svg
                 initial={{ pathLength: 0, opacity: 0 }}
@@ -44,15 +44,15 @@ export default function Hero() {
               </motion.svg>
             </span>
           </motion.h1>
-          <motion.p variants={item} className="text-lg md:text-xl text-[var(--ink-muted)] mb-10 text-balance leading-relaxed">
+          <motion.p variants={item} className="text-base sm:text-lg lg:text-lg 2xl:text-xl text-[var(--ink-muted)] mb-6 lg:mb-8 2xl:mb-10 text-balance leading-relaxed max-w-xl">
             Compare the fastest, shortest, and cheapest routes across the Harbour line, Uran branch, and Metro Line 1. With live train times, so you never miss a connection.
           </motion.p>
           <motion.div variants={item as any} className="flex flex-wrap items-center gap-4">
-            <Link href="/plan" className="group inline-flex h-[52px] px-8 text-lg items-center justify-center rounded-full font-medium text-white bg-[var(--green)] hover:bg-[var(--green)]/90 transition-all shadow-md hover:shadow-lg active:scale-95">
+            <Link href="/plan" className="group inline-flex h-12 lg:h-[50px] 2xl:h-[52px] px-7 2xl:px-8 text-base 2xl:text-lg items-center justify-center rounded-full font-medium text-white bg-[var(--green)] hover:bg-[var(--green)]/90 transition-all shadow-md hover:shadow-lg active:scale-95">
               Plan a route
-              <ArrowRight className="ml-2 w-5 h-5 text-[var(--orange)] group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#how-it-works" className="inline-flex h-[52px] px-8 text-lg items-center justify-center rounded-full font-medium text-[var(--ink)] hover:bg-[var(--surface-2)] transition-all">
+            <a href="#how-it-works" className="inline-flex h-12 lg:h-[50px] 2xl:h-[52px] px-7 2xl:px-8 text-base 2xl:text-lg items-center justify-center rounded-full font-medium text-[var(--ink)] hover:bg-[var(--surface-2)] transition-all">
               See how it works
             </a>
           </motion.div>
@@ -63,7 +63,7 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="relative hidden md:block"
+          className="relative hidden md:block w-full max-w-[380px] lg:max-w-[440px] 2xl:max-w-[560px] mx-auto"
         >
           <svg viewBox="0 0 400 400" className="w-full h-auto drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
             <motion.path
